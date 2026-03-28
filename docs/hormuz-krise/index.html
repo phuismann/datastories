@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In vier Wochen passierten 21 Tanker die Straße von Hormuz | phuismann</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <style>
+    /* ── Reset ──────────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens — NYT white ─────────────────────────────────────────────────── */
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f7f7f7;
+      --border:   #e2e2e2;
+      --accent:   #c0392b;     /* NYT-ish red — matches chart ACCENT */
+      --gold:     #b07d2b;     /* warm amber for series box */
+      --text:     #121212;
+      --text-dim: #666666;
+      --text-xdim:#999999;
+    }
+
+    /* ── Base typography ────────────────────────────────────────────────────── */
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.75;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 6rem;
+    }
+
+    /* Sans-serif for all UI chrome */
+    h1, h2, h3,
+    .article-label, .deck, .byline,
+    .section-label, figcaption, .note,
+    footer, .series-box, table, .source-list {
+      font-family: system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    p  { margin-bottom: 1.35rem; }
+    a  { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Article label ──────────────────────────────────────────────────────── */
+    .article-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.85rem;
+    }
+
+    /* ── Headline ───────────────────────────────────────────────────────────── */
+    h1 {
+      font-size: clamp(1.65rem, 4vw, 2.2rem);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.22;
+      letter-spacing: -0.015em;
+      margin-bottom: 0.85rem;
+    }
+
+    /* ── Deck ───────────────────────────────────────────────────────────────── */
+    .deck {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 1.2rem;
+      font-weight: 400;
+    }
+
+    /* ── Byline ─────────────────────────────────────────────────────────────── */
+    .byline {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 0.45rem 0;
+      margin-bottom: 2rem;
+    }
+
+    /* ── Section headings ───────────────────────────────────────────────────── */
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 2.25rem 0 0.7rem;
+      line-height: 1.3;
+    }
+
+    /* ── Pull quote ─────────────────────────────────────────────────────────── */
+    blockquote.pull {
+      border-left: 3px solid var(--text);
+      padding: 0.5rem 1.25rem;
+      margin: 2rem 0;
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    blockquote.pull cite {
+      display: block;
+      font-size: 0.78rem;
+      font-style: normal;
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+    }
+
+    /* ── Charts ─────────────────────────────────────────────────────────────── */
+    figure.chart {
+      margin: 2rem -0.25rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    figure.chart img {
+      width: 100%;
+      display: block;
+    }
+    figcaption {
+      font-size: 0.77rem;
+      color: var(--text-xdim);
+      padding: 0.45rem 0.85rem 0.6rem;
+      line-height: 1.45;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Data table ─────────────────────────────────────────────────────────── */
+    .data-table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th {
+      font-weight: 700;
+      padding: 0.5rem 0.85rem;
+      text-align: left;
+      border-bottom: 2px solid var(--text);
+      color: var(--text);
+    }
+    td {
+      padding: 0.45rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    tr:first-child td { font-weight: 600; }
+    tbody tr:hover td { background: var(--surface); }
+
+    /* ── Leaflet map ────────────────────────────────────────────────────────── */
+    #hormuz-leaflet {
+      height: 420px;
+      border-radius: 3px;
+      margin: 1.5rem -0.25rem;
+      border: 1px solid var(--border);
+    }
+
+    /* ── Note / callout boxes ───────────────────────────────────────────────── */
+    .note {
+      background: var(--surface);
+      border-left: 2px solid var(--border);
+      padding: 0.75rem 1rem;
+      font-size: 0.84rem;
+      color: var(--text-dim);
+      margin: 1.25rem 0;
+      line-height: 1.55;
+    }
+
+    /* ── Section divider ────────────────────────────────────────────────────── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* ── Sources ────────────────────────────────────────────────────────────── */
+    .source-list {
+      list-style: none;
+      font-size: 0.85rem;
+    }
+    .source-list li {
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .source-list li a { color: var(--accent); }
+
+    /* ── Series teaser ──────────────────────────────────────────────────────── */
+    .series-box {
+      border-left: 3px solid var(--gold);
+      padding: 1rem 1.25rem;
+      margin: 2.5rem 0;
+      background: #fdfbf7;
+    }
+    .series-box .label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+    .series-box p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────────────────── */
+    footer {
+      margin-top: 4rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--text);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Article label ──────────────────────────────────────────────────────── -->
+<p class="article-label">Energie · Geopolitik · Hormus-Krise 2026</p>
+
+<!-- ── Headline ──────────────────────────────────────────────────────────── -->
+<h1>In vier Wochen passierten 21 Tanker die Straße von Hormuz</h1>
+
+<p class="deck">
+  Warum eine 33-Kilometer-Meerenge den deutschen Ölpreis bestimmt —
+  auch wenn wir dort kaum kaufen.
+</p>
+
+<p class="byline">
+  Philipp Huismann &nbsp;·&nbsp;
+  <a href="https://github.com/phuismann">github.com/phuismann</a>
+  &nbsp;·&nbsp; 28. März 2026
+  &nbsp;·&nbsp; Daten: EIA, Eurostat, IEA
+</p>
+
+<!-- ── Lede ──────────────────────────────────────────────────────────────── -->
+<p>
+  In normalen Zeiten passieren täglich mehr als 100 Tanker die Straße von
+  Hormuz. Seit dem 28. Februar 2026 — dem Start der US-israelischen Operation
+  Epic Fury — sind es insgesamt 21 gewesen. Das Ergebnis: Rohöl kostet zum
+  ersten Mal seit Jahren wieder mehr als 100 Dollar pro Barrel, ein Anstieg
+  von 40&thinsp;% in weniger als vier Wochen.
+</p>
+
+<!-- ── Nut graf ──────────────────────────────────────────────────────────── -->
+<p>
+  Für Deutschland klingt das paradox. Weniger als 5&thinsp;% unserer
+  Rohölimporte kommen direkt aus dem Persischen Golf — die meisten Lieferungen
+  kommen aus den USA, Norwegen und Kasachstan. Trotzdem zahlen wir mit.
+  Öl ist ein globaler Markt: Wenn ein Fünftel des weltweiten Angebots
+  plötzlich wegfällt, steigt der Preis für alle — unabhängig davon, woher
+  ein einzelnes Land sein Öl bezieht.
+</p>
+
+<!-- ── Price chart ───────────────────────────────────────────────────────── -->
+<figure class="chart">
+  <img src="../outputs/frames/chart3_oil_price.png"
+       alt="Brentpreis Feb–Mrz 2026: +40 % seit Hormuz-Sperrung">
+  <figcaption>
+    Näherungswerte auf Basis von Bloomberg- und IEA-Pressemeldungen.
+    Ein exakter Tageskurs für den 28. März liegt zum Zeitpunkt der
+    Veröffentlichung nicht vor; die Größenordnung &gt;100&thinsp;USD ist
+    durch mehrere Quellen bestätigt.
+  </figcaption>
+</figure>
+
+<!-- ── What flows through Hormuz ─────────────────────────────────────────── -->
+<h2>Was durch die Enge fließt</h2>
+
+<p>
+  Die Straße von Hormuz verbindet den Persischen Golf mit dem Golf von Oman.
+  An ihrer engsten Stelle ist sie 33 Kilometer breit — davon sind nur zwei
+  Korridore je rund 3 Kilometer für den Schiffsverkehr nutzbar. Im Jahr 2024
+  passierten durchschnittlich rund 20 Millionen Barrel Öl täglich diese Enge,
+  was etwa einem Fünftel des globalen Petroleumverbrauchs entspricht.
+  Hinzu kommen täglich rund 10 Milliarden Kubikfuß Flüssiggas — fast
+  ausschließlich aus Katar, laut EIA knapp ein Fünftel des gesamten
+  globalen LNG-Handels.
+</p>
+
+<!-- ── Exports chart ─────────────────────────────────────────────────────── -->
+<figure class="chart">
+  <img src="../outputs/frames/chart1_hormuz_exports.png"
+       alt="Rohöl-Exporte durch Hormuz nach Exportland 2024">
+</figure>
+
+<div class="data-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Land</th>
+        <th>Mio. Barrel/Tag</th>
+        <th>Anteil (Rohöl &amp; Kondensate)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Saudi-Arabien</td><td>5,50</td><td>38,0&thinsp;%</td></tr>
+      <tr><td>Irak</td>         <td>3,30</td><td>22,8&thinsp;%</td></tr>
+      <tr><td>VAE</td>          <td>1,87</td><td>12,9&thinsp;%</td></tr>
+      <tr><td>Iran</td>         <td>1,53</td><td>10,6&thinsp;%</td></tr>
+      <tr><td>Kuwait</td>       <td>1,46</td><td>10,1&thinsp;%</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p class="note">
+  Die Tabelle zeigt Rohöl und Kondensate (~14,5&thinsp;Mio.&thinsp;b/d).
+  Der Gesamtfluss von ~20&thinsp;Mio.&thinsp;b/d schließt zusätzlich
+  Raffinerieprodukte und LPG ein. Iranische Exporte gingen 2024 fast
+  ausschließlich nach China (Sanktionsumgehung); seit Kriegsbeginn lässt
+  Iran selektiv chinesische Transporte durch — eine geopolitische Entscheidung,
+  die zeigt, dass die Sperrung gezielt eingesetzt wird.
+</p>
+
+<!-- ── Pull quote ────────────────────────────────────────────────────────── -->
+<blockquote class="pull">
+  Deutschland bezieht weniger als 5&thinsp;% seines Öls aus dem Persischen
+  Golf. Trotzdem zahlen wir den Weltmarktpreis — und der ist gerade um
+  40&thinsp;% gestiegen.
+</blockquote>
+
+<!-- ── Germany section ───────────────────────────────────────────────────── -->
+<h2>Deutschlands Rohöl kommt kaum aus dem Golf</h2>
+
+<p>
+  Deutschland ist der größte Rohölimporteur der EU mit rund
+  77 Millionen Tonnen jährlich. Nach dem Ende russischer Lieferungen
+  infolge des Angriffskriegs auf die Ukraine hat sich die Versorgung
+  stark diversifiziert: Die USA, Norwegen und Kasachstan machen heute
+  mehr als die Hälfte der Importe aus.
+</p>
+
+<figure class="chart">
+  <img src="../outputs/frames/chart2_germany_imports.png"
+       alt="Herkunft der deutschen Rohölimporte 2024">
+  <figcaption>
+    Wertanteile 2024, Eurostat NRG_TI_OIL. Kein einziger Hauptlieferant
+    stammt aus dem Persischen Golf.
+  </figcaption>
+</figure>
+
+<p>
+  Das klingt nach Entwarnung. Ist es nicht. Ob ein Abnehmer sein Öl aus
+  Norwegen oder aus Saudi-Arabien bezieht: Er kauft zum Brent-Weltmarktpreis.
+  Knappheit in einer Region — selbst wenn Deutschland dort nicht kauft —
+  drückt sich sofort im Preis nieder, den jeder zahlt.
+</p>
+
+<!-- ── Alternatives ──────────────────────────────────────────────────────── -->
+<h2>Eine Umgehung existiert nur auf dem Papier</h2>
+
+<p>
+  Saudi-Arabiens East-West-Pipeline hat eine Kapazität von rund
+  5&thinsp;Millionen Barrel täglich — ein Bruchteil der 20&thinsp;Millionen,
+  die durch Hormuz fließen. Irak, Kuwait und die VAE besitzen keine
+  vergleichbaren Bypass-Optionen. Der Suezkanal liegt westlich des Problems
+  und war 2024–2025 durch Houthi-Angriffe ohnehin belastet.
+  Es gibt keinen zweiten Hormuz.
+</p>
+
+<!-- ── Map ────────────────────────────────────────────────────────────────── -->
+<h2>Die Geographie der Blockade</h2>
+
+<div id="hormuz-leaflet"></div>
+<p class="note" style="margin-top:0">
+  Exportterminals, Tankerroute und Blockademarker. Schiffsansammlung
+  illustriert bekannte Wartebereiche (Hormuz-Westeinfahrt, Fujairah-Ankerplatz)
+  — keine Echtzeit-AIS-Daten. Tiles: © OpenStreetMap / CARTO.
+</p>
+
+<!-- ── Situation today ───────────────────────────────────────────────────── -->
+<h2>Stand 28. März 2026: 2.000 Schiffe warten</h2>
+
+<p>
+  Laut Lloyd's List stauen sich mindestens 200 konforme Tanker in der Region;
+  Gesamtschätzungen — inklusive Bulk-Frachter, Containerschiffe und andere
+  Typen — liegen bei rund 2.000 Schiffen. Die Trump-Administration hat
+  mehrfach Fristen für eine Wiedereröffnung gesetzt und verlängert.
+  Gespräche laufen, ihr Stand ist unklar.
+</p>
+
+<!-- ── What we don't know ────────────────────────────────────────────────── -->
+<hr>
+<h2>Was wir nicht wissen</h2>
+
+<p>
+  Die genaue Tankerfrequenz während der Krise lässt sich nur auf Basis von
+  Pressemeldungen schätzen — Primärquellen wie Lloyd's List oder MarineTraffic
+  erfordern kostenpflichtige AIS-Abonnements. Der exakte Brentpreis am
+  28. März ist zum Zeitpunkt dieser Veröffentlichung nicht final verifiziert;
+  die Größenordnung von &gt;100&thinsp;USD ist durch mehrere Quellen bestätigt.
+  Wie lange die Sperrung andauert, lässt sich nicht vorhersagen — Trumps
+  Fristen wurden mehrfach verlängert, die Verhandlungslage ist undurchsichtig.
+</p>
+
+<!-- ── Series teaser ─────────────────────────────────────────────────────── -->
+<div class="series-box">
+  <p class="label">Nächster Teil · Hormus-Energiekrise</p>
+  <p>
+    Katar verschifft fast 20&thinsp;% des globalen LNG-Handels durch
+    dieselbe Meerenge. Langfristige Gasverträge und starre Terminal­infrastruktur
+    machen LNG politisch unflexibler als Rohöl. Welche Länder davon am stärksten
+    abhängen — und was das für Europa bedeutet — ist das Thema des nächsten Posts.
+  </p>
+</div>
+
+<!-- ── Methodology ───────────────────────────────────────────────────────── -->
+<hr>
+<h2>Methodik &amp; Einschränkungen</h2>
+
+<p>
+  Die Hormuz-Flussdaten basieren auf dem EIA-Jahresbericht „World Oil Transit
+  Chokepoints" für 2024 — einem Vorkriegs-Baseline-Datensatz. Die deutschen
+  Importanteile stammen aus Eurostat NRG_TI_OIL (Wertanteile, 2024). Der
+  Preischart zeigt Näherungswerte aus Pressemeldungen (Bloomberg, IEA);
+  er ist kein Live-Preis-Feed.
+</p>
+
+<p class="note">
+  EIA- und Eurostat-Datenportale waren am Erstellungstag für automatischen
+  Abruf nicht zugänglich. Die verwendeten Zahlen wurden aus mehreren
+  übereinstimmenden Quellen verifiziert und entsprechen den bekannten
+  EIA/Eurostat-Jahreswerten. Alle Grafiken wurden mit Python/matplotlib
+  selbst erstellt; der Code ist im Repository verfügbar.
+</p>
+
+<!-- ── Sources ───────────────────────────────────────────────────────────── -->
+<h2>Quellen</h2>
+<ul class="source-list">
+  <li>
+    <a href="https://www.eia.gov/todayinenergy/detail.php?id=65504" target="_blank">
+      EIA — Hormuz remains critical oil chokepoint (2024)
+    </a>
+  </li>
+  <li>
+    <a href="https://www.eia.gov/todayinenergy/detail.php?id=65584" target="_blank">
+      EIA — One-fifth of global LNG trade flows through Hormuz (2024)
+    </a>
+  </li>
+  <li>
+    <a href="https://ec.europa.eu/eurostat/statistics-explained/index.php?title=EU_imports_of_energy_products_-_latest_developments" target="_blank">
+      Eurostat — EU imports of energy products, latest developments
+    </a>
+  </li>
+  <li>
+    <a href="https://www.iea.org/about/oil-security-and-emergency-response/strait-of-hormuz" target="_blank">
+      IEA — Strait of Hormuz
+    </a>
+  </li>
+  <li>
+    <a href="https://en.wikipedia.org/wiki/2026_Strait_of_Hormuz_crisis" target="_blank">
+      Wikipedia — 2026 Strait of Hormuz crisis
+    </a>
+  </li>
+</ul>
+
+<!-- ── Footer ────────────────────────────────────────────────────────────── -->
+<footer>
+  Philipp Huismann ·
+  <a href="https://github.com/phuismann">github.com/phuismann</a>
+  · 2026 ·
+  Daten: EIA (Public Domain), Eurostat (CC BY 4.0) ·
+  Grafiken: selbst erstellt mit Python / matplotlib
+</footer>
+
+<!-- ── Leaflet ────────────────────────────────────────────────────────────── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function () {
+  const map = L.map('hormuz-leaflet', {
+    center: [26.5, 54.5], zoom: 6, scrollWheelZoom: false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com">CARTO</a>',
+    maxZoom: 14
+  }).addTo(map);
+
+  // Tanker route
+  L.polyline([
+    [28.0,49.5],[27.0,51.5],[26.5,53.0],[26.2,54.5],
+    [25.8,55.5],[26.1,56.2],[25.5,57.0],[24.0,58.5],[22.5,60.5]
+  ], { color: '#b07d2b', weight: 2.5, opacity: 0.8, dashArray: '8,5' })
+   .bindPopup('<b>Tankerroute</b><br>Persischer Golf → Indischer Ozean')
+   .addTo(map);
+
+  // Export terminals
+  [
+    [26.6, 50.1, 'Ras Tanura (Saudi-Arabien)',   '5,50 Mio. b/d Rohöl', '#c0392b'],
+    [30.3, 50.3, 'Kharg Island (Iran)',           '1,53 Mio. b/d Rohöl', '#888'],
+    [29.4, 47.9, 'Mina al-Ahmadi (Kuwait)',       '1,46 Mio. b/d Rohöl', '#888'],
+    [30.3, 48.2, 'Basra / Khor al-Amaya (Irak)', '3,30 Mio. b/d Rohöl', '#888'],
+    [25.0, 55.1, 'Jebel Ali (VAE)',              '1,87 Mio. b/d Rohöl', '#888'],
+    [25.3, 51.5, 'Ras Laffan (Katar)',           '~9,3 Bcf/Tag LNG',    '#b07d2b'],
+  ].forEach(([lat, lon, name, vol, color]) => {
+    L.circleMarker([lat, lon], {
+      radius: 8, fillColor: color, color: '#fff',
+      weight: 1.5, fillOpacity: 0.9
+    }).bindPopup(`<b>${name}</b><br>${vol}`).addTo(map);
+  });
+
+  // Ship queue near Hormuz (illustrative)
+  L.circleMarker([26.7, 55.2], {
+    radius: 26, fillColor: '#c0392b', color: '#c0392b',
+    weight: 1, fillOpacity: 0.1
+  }).bindPopup(
+    '<b>Warteschlange Hormuz (Golf-Seite)</b><br>' +
+    '~200 konforme Tanker (Lloyd\'s List)<br>' +
+    '<i>Illustriert bekannten Wartebereich — keine Echtzeit-AIS-Daten</i>'
+  ).addTo(map);
+
+  // Hormuz chokepoint marker
+  const icon = L.divIcon({
+    html: '<div style="background:#c0392b;color:#fff;font-weight:900;font-size:13px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.25)">✕</div>',
+    iconSize: [26, 26], iconAnchor: [13, 13], className: ''
+  });
+  L.marker([26.35, 56.4], { icon })
+   .bindPopup(
+     '<b>Straße von Hormuz</b><br>' +
+     '<span style="color:#c0392b"><b>Gesperrt seit 28.02.2026</b></span><br>' +
+     'Engste Stelle: 33 km<br>' +
+     'Rohöl &amp; Kondensate: ~14,5 Mio. b/d<br>' +
+     'Gesamt inkl. Produkte: ~20 Mio. b/d'
+   ).addTo(map);
+
+  // Legend
+  const legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = () => {
+    const d = L.DomUtil.create('div');
+    d.style.cssText =
+      'background:#fff;color:#333;padding:7px 11px;border-radius:3px;' +
+      'font-size:11px;font-family:system-ui,sans-serif;' +
+      'border:1px solid #ddd;line-height:1.55;max-width:170px;' +
+      'box-shadow:0 1px 3px rgba(0,0,0,0.1);';
+    d.innerHTML =
+      '<b>Straße von Hormuz — 2026</b><br>' +
+      '<span style="color:#888">Quelle: EIA 2024 · github.com/phuismann</span>';
+    return d;
+  };
+  legend.addTo(map);
+})();
+</script>
+
+</body>
+</html>
