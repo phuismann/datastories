@@ -474,12 +474,12 @@
 
   // Export terminals
   [
-    [26.6, 50.1, 'Ras Tanura (Saudi-Arabien)',   '5,50 Mio. b/d Rohöl', '#c0392b'],
-    [30.3, 50.3, 'Kharg Island (Iran)',           '1,53 Mio. b/d Rohöl', '#888'],
-    [29.4, 47.9, 'Mina al-Ahmadi (Kuwait)',       '1,46 Mio. b/d Rohöl', '#888'],
-    [30.3, 48.2, 'Basra / Khor al-Amaya (Irak)', '3,30 Mio. b/d Rohöl', '#888'],
-    [25.0, 55.1, 'Jebel Ali (VAE)',              '1,87 Mio. b/d Rohöl', '#888'],
-    [25.3, 51.5, 'Ras Laffan (Katar)',           '~9,3 Bcf/Tag LNG',    '#b07d2b'],
+    [26.67, 50.03, 'Ras Tanura (Saudi-Arabien)',   '5,50 Mio. b/d Rohöl', '#c0392b'],
+    [29.24, 50.33, 'Kharg Island (Iran)',           '1,53 Mio. b/d Rohöl', '#888'],
+    [29.08, 48.14, 'Mina al-Ahmadi (Kuwait)',       '1,46 Mio. b/d Rohöl', '#888'],
+    [29.78, 48.80, 'Basra / Khor al-Amaya (Irak)',  '3,30 Mio. b/d Rohöl', '#888'],
+    [25.01, 55.06, 'Jebel Ali (VAE)',               '1,87 Mio. b/d Rohöl', '#888'],
+    [25.93, 51.55, 'Ras Laffan (Katar)',            '~9,3 Bcf/Tag LNG',    '#b07d2b'],
   ].forEach(([lat, lon, name, vol, color]) => {
     L.circleMarker([lat, lon], {
       radius: 8, fillColor: color, color: '#fff',
@@ -502,7 +502,7 @@
     html: '<div style="background:#c0392b;color:#fff;font-weight:900;font-size:13px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.25)">✕</div>',
     iconSize: [26, 26], iconAnchor: [13, 13], className: ''
   });
-  L.marker([26.35, 56.4], { icon })
+  L.marker([26.57, 56.25], { icon })
    .bindPopup(
      '<b>Straße von Hormuz</b><br>' +
      '<span style="color:#c0392b"><b>Seit 28.02.2026 weitgehend unterbrochen</b></span><br>' +
