@@ -1,0 +1,32 @@
+{
+  "analysis_created": "2026-04-08",
+  "base_month": "2025-12",
+  "base_brent_usd": 62.54,
+  "base_counter_price_eur": 7.11,
+  "base_net_price_eur": 6.64,
+  "buffer_eur": 0.6,
+  "delivery_plausibility_eur": 8.03,
+  "delivery_uplift_vs_counter_eur": 0.92,
+  "short_run_delta_100_vs_base_eur": 0.03,
+  "long_run_delta_100_vs_base_eur": 0.17,
+  "diesel_beta": 0.567,
+  "freight_beta": 0.407,
+  "packaging_beta": 0.303,
+  "packaging_edge_retained": true,
+  "pass_through_long_beta": 0.787,
+  "pass_through_short_beta": 0.121,
+  "pass_through_speed": 0.071,
+  "component_breakdown_eur": {
+    "meat": 2.311,
+    "bread": 0.469,
+    "vegetables": 0.224,
+    "sauce": 0.213,
+    "packaging": 0.08,
+    "energy": 0.24,
+    "labor": 1.969,
+    "rent": 0.236,
+    "other": 0.3,
+    "buffer": 0.604
+  },
+  "vat_eur": 0.465
+}

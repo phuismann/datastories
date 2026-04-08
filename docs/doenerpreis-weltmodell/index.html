@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Öl macht den Döner teurer. Aber nur über wenige Knoten.</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #fbfaf7;
+      --paper: #ffffff;
+      --ink: #151515;
+      --muted: #666666;
+      --line: #e3e0d8;
+      --accent: #b53a2d;
+      --accent-soft: #efe2de;
+      --warm: #fff9ef;
+      --shadow: 0 18px 50px rgba(24, 24, 24, 0.06);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: Georgia, "Times New Roman", serif; line-height: 1.55; }
+    a { color: var(--accent); }
+    .shell { max-width: 1120px; margin: 0 auto; padding: 28px 18px 80px; }
+    .label, .deck, .byline, .legend, .sources-list li, .chip, .metric-label, .control-label, .notes, .node-status, .footer-note, .lede-note {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .label { letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-size: 0.76rem; margin-bottom: 16px; }
+    h1 { margin: 0; font-size: clamp(2.4rem, 5vw, 4.5rem); line-height: 0.98; max-width: 12ch; }
+    .deck { margin: 18px 0 12px; font-size: 1.02rem; color: var(--muted); max-width: 54rem; }
+    .byline { color: var(--muted); font-size: 0.92rem; margin-bottom: 28px; }
+    .lede { font-size: clamp(1.22rem, 2vw, 1.56rem); max-width: 45rem; margin: 0 0 32px; }
+    .model { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr); gap: 24px; align-items: start; margin-bottom: 46px; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .controls { padding: 26px 24px 22px; }
+    .price-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 22px 0; }
+    .metric { padding: 16px 14px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(180deg, #fffdf9 0%, #fff 100%); }
+    .metric-value { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1.58rem; font-weight: 650; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .metric-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .control-row { padding: 18px 0 10px; border-top: 1px solid var(--line); }
+    .control-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 10px; }
+    .control-label { font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .control-value { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1.22rem; font-weight: 620; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chip { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 7px 12px; font-size: 0.82rem; cursor: pointer; }
+    .chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .decomposition { padding: 24px; display: grid; gap: 18px; }
+    .bar-wrap { padding: 18px; background: #fffdf9; border: 1px solid var(--line); border-radius: 20px; }
+    .stacked-bar { display: flex; height: 26px; border-radius: 999px; overflow: hidden; background: #f0ece2; margin-bottom: 16px; }
+    .stack { min-width: 0; }
+    .legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; font-size: 0.84rem; }
+    .legend-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .legend-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .dot { width: 10px; height: 10px; border-radius: 999px; flex: none; }
+    .dependency { padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: #fff; }
+    .dependency svg { width: 100%; height: auto; display: block; }
+    .dependency-note { font-size: 0.8rem; color: var(--muted); margin-top: 12px; }
+    details { border-top: 1px solid var(--line); padding-top: 18px; }
+    summary { cursor: pointer; list-style: none; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 0.9rem; font-weight: 620; }
+    summary::-webkit-details-marker { display: none; }
+    .override-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+    .override { padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: #fffdf9; }
+    .override-value { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 0.95rem; font-weight: 620; margin-bottom: 8px; }
+    .article-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 34px; align-items: start; margin-top: 18px; }
+    article p { max-width: 42rem; margin: 0 0 18px; font-size: 1.02rem; }
+    .pull { padding-left: 18px; border-left: 4px solid var(--ink); font-style: italic; font-size: 1.18rem; margin: 28px 0; max-width: 36rem; }
+    figure { margin: 26px 0; }
+    figure img { width: 100%; display: block; border: 1px solid var(--line); }
+    figcaption { color: var(--muted); font-size: 0.84rem; margin-top: 8px; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .sidebar { position: sticky; top: 22px; padding: 20px; background: var(--warm); border-left: 4px solid #c8962c; border-radius: 18px; border-top: 1px solid var(--line); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .sidebar h2, article h2 { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 0.84rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+    .node-list, .sources-list { padding-left: 18px; margin: 0; }
+    .node-list li, .sources-list li { margin-bottom: 10px; color: var(--ink); }
+    .node-status { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; background: var(--accent-soft); color: var(--accent); vertical-align: middle; }
+    .footer-note { border-top: 3px double var(--line); margin-top: 48px; padding-top: 18px; color: var(--muted); font-size: 0.84rem; }
+    @media (max-width: 920px) {
+      .model, .article-grid { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .price-strip, .override-grid, .legend { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="label">Preisweltmodell · Deutschland</div>
+    <h1>Öl macht den Döner teurer. Aber nur über wenige Knoten.</h1>
+    <div class="deck">Oben steht ein Referenzmodell für einen deutschen Kalb/Rind-Döner zum Mitnehmen. Unten steht die Methode: welche amtlichen Reihen das Modell tragen, welche Kanten nur Proxys sind und warum ein Ölschock den Preis meist in Cent bewegt, nicht in Euro.</div>
+    <div class="byline">Von Philipp Huismann · Datengrundlage bis Dezember 2025 · Interaktive Referenzrechnung</div>
+    <p class="lede">Der Referenz-Döner kostet im Modell <strong id="lede-price">7,11 €</strong>. Brent läuft in den Preis hinein, aber nicht direkt. Öl geht erst durch Diesel, dann durch Fracht und erst danach in Fleisch, Gemüse, Soße und Verpackung.</p>
+
+    <section class="model">
+      <div class="card controls">
+        <div class="control-label">Weltmodell</div>
+        <div class="price-strip">
+          <div class="metric"><div class="metric-value" id="metric-price">7,11 €</div><div class="metric-label">Mittelfristiger Dönerpreis</div></div>
+          <div class="metric"><div class="metric-value" id="metric-short">+0,00 €</div><div class="metric-label">Sofort-Effekt</div></div>
+          <div class="metric"><div class="metric-value" id="metric-long">+0,00 €</div><div class="metric-label">Mittelfristiger Effekt</div></div>
+        </div>
+        <div class="control-row">
+          <div class="control-head">
+            <div class="control-label">Brent</div>
+            <div class="control-value" id="brent-value">62,5 Dollar je Barrel</div>
+          </div>
+          <input id="brent-slider" type="range" min="40" max="140" step="1">
+          <div class="chips" id="chip-row"></div>
+          <p class="lede-note" id="scenario-text">Bei Basis-Brent bleibt der Referenz-Döner auf seinem kalibrierten Ausgangsniveau.</p>
+        </div>
+        <details>
+          <summary>Manuelle Overrides</summary>
+          <div class="override-grid">
+            <div class="override"><div class="control-label">Fleisch</div><div class="override-value" id="override-meat-value">100 % der Basis</div><input data-override="meat" type="range" min="80" max="140" step="1" value="100"></div>
+            <div class="override"><div class="control-label">Lohn</div><div class="override-value" id="override-labor-value">100 % der Basis</div><input data-override="labor" type="range" min="80" max="140" step="1" value="100"></div>
+            <div class="override"><div class="control-label">Strom und Gas</div><div class="override-value" id="override-energy-value">100 % der Basis</div><input data-override="energy" type="range" min="80" max="140" step="1" value="100"></div>
+            <div class="override"><div class="control-label">Miete</div><div class="override-value" id="override-rent-value">100 % der Basis</div><input data-override="rent" type="range" min="80" max="140" step="1" value="100"></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="decomposition">
+        <div class="bar-wrap">
+          <div class="control-label">Preiszerlegung</div>
+          <div style="font-family:system-ui,sans-serif;font-size:1.1rem;font-weight:620;margin:8px 0 16px" id="bar-headline">7,11 € brutto</div>
+          <div class="stacked-bar" id="stacked-bar"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="dependency">
+          <div class="control-label">Aktiver Ölpfad</div>
+          <svg id="dependency-svg" viewBox="0 0 640 260" aria-label="Abhängigkeitsdiagramm"></svg>
+          <div class="dependency-note" id="dependency-note">Öl läuft im Modell über Diesel und Fracht in eingekaufte Inputs. Arbeit, Miete und Steuer bleiben davon getrennt, solange kein Override gesetzt ist.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="article-grid">
+      <article>
+        <p>Wenn Brent von <strong>62,54</strong> auf <strong>100</strong> Dollar steigt, hebt der Ölpfad den Referenz-Döner im Modell mittelfristig von <strong>7,11</strong> auf <strong>7,28</strong> Euro. Sofort sind es nur <strong>3</strong> Cent. Der Schock läuft also bis zur Theke. Er läuft nur nicht so direkt und so groß, wie es die Debatte oft nahelegt.</p>
+        <p>Im Basismodell stecken rund <strong>2,31</strong> Euro Fleisch und <strong>1,97</strong> Euro Arbeit in einem Döner. Verpackung liegt bei <strong>8</strong> Cent. Genau deshalb bleibt der Ölpfad kleiner. Brent trifft erst Diesel, dann Fracht und erst danach einen Teil von Fleisch, Gemüse, Soße und Verpackung.</p>
+        <div class="pull" id="pull-quote">Von <strong>62,54</strong> auf <strong>100</strong> Dollar Brent: <strong>+0,17</strong> Euro mittelfristig. Fleisch und Arbeit bleiben die großen Blöcke.</div>
+        <figure>
+          <img src="outputs/page_assets/brent_response_curve.png" alt="Brent-Sensitivität des Dönerpreises">
+          <figcaption>Die Kurve zeigt einen Brent-Schock bei unveränderten Fleisch-, Lohn-, Energie- und Miet-Overrides. Bei <strong>100</strong> Dollar Brent landet der Referenz-Döner im Modell bei <strong>7,28</strong> Euro.</figcaption>
+        </figure>
+        <p>Der historische Teil des Modells nutzt amtliche Monatsreihen für Deutschland. Fleisch läuft über <strong>Beef and veal</strong>, Brot über <strong>Bread</strong>, der Gemüseblock über den offiziellen HICP-Proxy für frisches Gemüse, dazu Verpackung, Strom, Gas, Mieten, Straßenfracht und Löhne. Weil es keinen amtlichen Monatsindex nur für den Döner gibt, kalibriert das Modell auf einen veröffentlichten Durchschnittspreis für den Thekenkauf und prüft ihn gegen den Lieferpreis von <strong>8,03</strong> Euro.</p>
+        <figure>
+          <img src="outputs/page_assets/structural_vs_proxy.png" alt="Struktureller Inputkorb und amtlicher Imbisspreis-Proxy">
+          <figcaption>Der Kostenkorb und der amtliche Imbisspreis laufen nicht im Gleichschritt. Genau deshalb zeigt das Modell zwei Preise: einen sofortigen und einen mittelfristigen Effekt.</figcaption>
+        </figure>
+        <h2>Was wir nicht wissen</h2>
+        <p>Kein amtlicher Datensatz sagt, wie viel Tomate genau in jedem Döner landet oder zu welchem Vertrag ein einzelner Laden Fleisch einkauft. Gewerbemieten unterscheiden sich stärker nach Lage als Wohnmieten. Genau deshalb ist das hier ein Referenz-Döner für Deutschland und kein Claim über jede Theke im Land.</p>
+        <h2>Methode</h2>
+        <p>Das Skript baut erst einen Bottom-up-Korb aus den Einzelkosten auf. Danach schätzt es, wie stark der amtliche Imbisspreis-Proxy historisch auf diesen Korb reagiert. Die Langfrist-Elastizität bestimmt den mittelfristigen Preis. Die Kurzfrist-Elastizität bestimmt den Sofort-Effekt. Die Visualisierung oben skaliert dann die einzelnen Kostenblöcke so, dass ihre Summe genau zu dieser Preisreaktion passt.</p>
+        <h2>Quellen</h2>
+        <ol class="sources-list" id="sources-list"></ol>
+      </article>
+
+      <aside class="sidebar">
+        <h2>Modellstatus</h2>
+        <ul class="node-list">
+          <li>Fleisch <span class="node-status">observed_series</span></li>
+          <li>Brot <span class="node-status">observed_series</span></li>
+          <li>Tomate / Zwiebel / Salat-Kohl <span class="node-status">proxy_series</span></li>
+          <li>Soße <span class="node-status">proxy_series</span></li>
+          <li>Verpackung <span class="node-status">proxy_series</span></li>
+          <li>Lohn <span class="node-status">observed_series</span></li>
+          <li>Miete <span class="node-status">proxy_series</span></li>
+          <li>Puffer <span class="node-status">fixed_assumption</span></li>
+        </ul>
+        <h2>Interpretation</h2>
+        <p class="lede-note">Wenn Sie oben Fleisch, Lohn oder Miete manuell verschieben, kappen Sie bewusst die automatische Ölweitergabe für diesen Block. Das Modell zeigt dann keinen Brent-Schock mehr, sondern einen separaten Kostenimpuls.</p>
+      </aside>
+    </div>
+
+    <div class="footer-note">Referenz-Döner für Deutschland · Stand der amtlichen Monatsreihen: <span id="footer-month">Dezember 2025</span> · Code und Datenpfad im Repo unter `posts/2026-04-08_doenerpreis-weltmodell/`</div>
+  </div>
+
+  <script>const WORLD_MODEL_DATA = {"base_month":"2025-12","recipe":{"meat_raw_g":150.0,"bread_units":1.0,"tomato_g":35.0,"onion_g":22.0,"lettuce_cabbage_g":33.0,"sauce_g":35.0,"wrap_units":1.0,"napkin_units":1.0},"yields":{"meat":0.74,"bread":0.98,"vegetables":0.88,"sauce":0.97},"shop_profile":{"monthly_units":4200.0,"productive_fte":2.4,"sqm":45.0,"opening_days":26,"hours_per_fte_month":162.5,"operating_pattern":"high-grill, refrigerated-prep"},"benchmark":{"counter_price_eur":7.11,"counter_label":"YouGov survey cited by dpa/Stern for 2025 average counter Döner price","counter_url":"https://www.stern.de/wirtschaft/news/doener-preis-in-deutschland-bei-diesen-vier-faktoren-sind-kunden-schmerzfrei-35592652.html","delivery_price_eur":8.03,"delivery_label":"Lieferando Döner-Index 2025, average delivery price in Germany","delivery_url":"https://newsroom.justeattakeaway.com/de-DE/250877-lieferando-enthullt-doner-preise-in-halle-am-gunstigsten/","vat_rate":0.07},"cost_tree":{"visible_components":{"meat":2.310810810810811,"bread":0.46938775510204084,"vegetables":0.22386363636363638,"sauce":0.21288659793814432,"packaging":0.08,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"child_nodes":{"tomato":0.11136363636363636,"onion":0.03,"lettuce_cabbage":0.0825,"sauce_blend":0.21288659793814432}},"oil_edges":{"diesel_on_brent":0.5665395791201795,"freight_on_diesel":0.4073952915019277,"packaging_on_brent":0.3033161016354632,"packaging_edge_retained":true,"logistics_shares":{"meat":0.55,"bread":0.12,"vegetables":0.45,"sauce":0.35,"packaging":0.3}},"pass_through_params":{"long_run_intercept":-0.034123338070413074,"long_run_beta_raw":0.7865509413020378,"long_run_beta":0.7865509413020378,"long_run_r2":0.9759200895177272,"short_run_beta_raw":0.12119302105205307,"short_run_beta":0.12119302105205307,"adjustment_raw":-0.07071636101625388,"adjustment_speed":0.07071636101625388,"n_obs":132.0},"series_meta":{"labels":{"takeaway_fast_food":"Fast food and take away food services","beef_veal":"Beef and veal","bread":"Bread","fresh_vegetables":"Fresh vegetables other than potatoes","sauces_condiments":"Sauces, condiments","yoghurt":"Yoghurt","eggs":"Eggs","edible_oils":"Other edible oils","paper_products":"Paper products","diesel":"Diesel","electricity":"Electricity","gas":"Natural gas and town gas","rent_proxy":"Actual rentals paid by tenants","other_costs":"Overall index excluding energy","freight_road":"Freight transport by road and removal services","labor_index":"Wages and salaries index in accommodation and food service activities","brent_usd_bbl":"Europe Brent Spot Price FOB"},"status":{"beef_veal":"observed_series","bread":"observed_series","fresh_vegetables":"proxy_series","sauces_condiments":"observed_series","yoghurt":"observed_series","eggs":"observed_series","edible_oils":"observed_series","paper_products":"proxy_series","diesel":"observed_series","electricity":"observed_series","gas":"observed_series","rent_proxy":"proxy_series","other_costs":"proxy_series","freight_road":"observed_series","labor_index":"observed_series","brent_usd_bbl":"observed_series"},"base_series_values":{"takeaway_fast_food":152.2,"beef_veal":169.5,"bread":153.2,"fresh_vegetables":145.2,"sauces_condiments":151.6,"yoghurt":144.4,"eggs":168.8,"edible_oils":148.1,"paper_products":148.0,"diesel":137.9,"electricity":137.2,"gas":178.2,"rent_proxy":119.6,"other_costs":130.8,"freight_road":123.27639426089031,"labor_index":127.5,"brent_usd_bbl":62.54}},"scenario_defaults":{"brent_usd":62.54,"chips":[60.0,80.0,100.0,120.0],"override_defaults":{"meat":1.0,"labor":1.0,"energy":1.0,"rent":1.0}},"current_price_outputs":{"brent_usd":62.54,"brent_ratio":1.0,"diesel_ratio":1.0,"freight_ratio":1.0,"packaging_oil_ratio":1.0,"input_change":1.0,"raw_components":{"meat":2.310810810810811,"bread":0.46938775510204084,"vegetables":0.22386363636363638,"sauce":0.21288659793814432,"packaging":0.08,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_components":{"meat":2.310810810810811,"bread":0.46938775510204084,"vegetables":0.22386363636363638,"sauce":0.21288659793814432,"packaging":0.08,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"short_components":{"meat":2.310810810810811,"bread":0.46938775510204084,"vegetables":0.22386363636363638,"sauce":0.21288659793814432,"packaging":0.08,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_run_net":6.644859813084111,"short_run_net":6.644859813084111,"long_run_vat":0.4651401869158878,"short_run_vat":0.4651401869158878,"long_run_gross":7.109999999999999,"short_run_gross":7.109999999999999,"active_overrides":[]},"scenario_examples":[{"brent_usd":60.0,"brent_ratio":0.9593859929645028,"diesel_ratio":0.9767839915889249,"freight_ratio":0.990476031530621,"packaging_oil_ratio":0.9875027193373909,"input_change":0.9974228317418771,"raw_components":{"meat":2.298680303054457,"bread":0.4688490414635133,"vegetables":0.22290167948773076,"sauce":0.2121747560007014,"packaging":0.07877374237758254,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_components":{"meat":2.3003133195253507,"bread":0.46892156342734864,"vegetables":0.22303117871844683,"sauce":0.21227058460341658,"packaging":0.0789388219385694,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"short_components":{"meat":2.3091919517590513,"bread":0.4693158618666089,"vegetables":0.22373525982514017,"sauce":0.21279160012049336,"packaging":0.0798363515945324,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_run_net":6.631386481082611,"short_run_net":6.642782038035305,"long_run_vat":0.46419705367578284,"short_run_vat":0.4649947426624714,"long_run_gross":7.0955835347583935,"short_run_gross":7.107776780697776,"active_overrides":[]},{"brent_usd":80.0,"brent_ratio":1.2791813239526704,"diesel_ratio":1.1496913732843197,"freight_ratio":1.0584748057594515,"packaging_oil_ratio":1.0775420591794567,"input_change":1.0156160453592151,"raw_components":{"meat":2.3841780182747825,"bread":0.4725996754113417,"vegetables":0.22966234258164064,"sauce":0.21716333650775055,"packaging":0.0876856196432103,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_components":{"meat":2.374178680478357,"bread":0.47216191749117453,"vegetables":0.22887202734053608,"sauce":0.2165804527494244,"packaging":0.08663813385707018,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"short_components":{"meat":2.3205243715098924,"bread":0.4698130020749521,"vegetables":0.22463136470946973,"sauce":0.2134528231104786,"packaging":0.08101754905897214,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_run_net":6.726342224786041,"short_run_net":6.657350123333244,"long_run_vat":0.4708439557350229,"short_run_vat":0.46601450863332716,"long_run_gross":7.197186180521064,"short_run_gross":7.123364631966571,"active_overrides":[]},{"brent_usd":100.0,"brent_ratio":1.598976654940838,"diesel_ratio":1.3046217981762218,"freight_ratio":1.1144174267233933,"packaging_oil_ratio":1.1529981172424868,"input_change":1.030243376104341,"raw_components":{"meat":2.452679113742383,"bread":0.47552954304332057,"vegetables":0.23504721333041287,"sauce":0.22111341131919882,"packaging":0.09528684633587745,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_components":{"meat":2.433155531459842,"bread":0.4746843246276796,"vegetables":0.2335081557635559,"sauce":0.21998125660493822,"packaging":0.09318310648622957,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"short_components":{"meat":2.3294755307662003,"bread":0.4701957914962216,"vegetables":0.22533498921604278,"sauce":0.21396894801007474,"packaging":0.08201119418477744,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_run_net":6.802423387811724,"short_run_net":6.668897466542796,"long_run_vat":0.47616963714682076,"short_run_vat":0.46682282265799574,"long_run_gross":7.278593024958545,"short_run_gross":7.135720289200791,"active_overrides":[]},{"brent_usd":120.0,"brent_ratio":1.9187719859290056,"diesel_ratio":1.4465849432327629,"freight_ratio":1.1623137255919944,"packaging_oil_ratio":1.2185561474982256,"input_change":1.042543284006733,"raw_components":{"meat":2.510107042310381,"bread":0.4779368973914747,"vegetables":0.23954056460702158,"sauce":0.2243941341695308,"packaging":0.1019841174378903,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_components":{"meat":2.4824604948575453,"bread":0.47675095289966235,"vegetables":0.23736584741676509,"sauce":0.22279779868394514,"packaging":0.0989344614490029,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"short_components":{"meat":2.336893674333542,"bread":0.4705066227790355,"vegetables":0.2259153519267013,"sauce":0.21439264496546495,"packaging":0.082877167974957,"energy":0.24,"labor":1.9685714285714286,"rent":0.2357142857142857,"other":0.3,"buffer":0.6036252985837649},"long_run_net":6.8662205681763995,"short_run_net":6.6784964748491795,"long_run_vat":0.480635439772348,"short_run_vat":0.4674947532394426,"long_run_gross":7.346856007948747,"short_run_gross":7.145991228088622,"active_overrides":[]}],"sources_manifest":[{"title":"Eurostat HICP monthly index for Germany","url":"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_midx","access_date":"2026-04-08","license":"© European Union, reuse with attribution","why_used":"Official monthly German price indices for food inputs, energy, rent proxy and the takeaway-food downstream proxy.","local_path":"data\raw\eurostat_hicp.json","code_used":"tools.analysis.doner_world_model.fetch_hicp_monthly","type":"primary"},{"title":"Eurostat service producer prices for road freight in Germany","url":"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_sepp_q","access_date":"2026-04-08","license":"© European Union, reuse with attribution","why_used":"Official road-freight price node between diesel and delivered inputs.","local_path":"data\raw\eurostat_freight_q.json","code_used":"tools.analysis.doner_world_model.fetch_freight_index_monthly","type":"primary"},{"title":"Eurostat labour cost index by NACE I in Germany","url":"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/lc_lci_r2_q","access_date":"2026-04-08","license":"© European Union, reuse with attribution","why_used":"Official wage index for accommodation and food service activities.","local_path":"data\raw\eurostat_labor_q.json","code_used":"tools.analysis.doner_world_model.fetch_labor_index_monthly","type":"primary"},{"title":"Eurostat labour cost levels by NACE I in Germany","url":"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/lc_lci_lev","access_date":"2026-04-08","license":"© European Union, reuse with attribution","why_used":"Official annual wage-per-hour level used to anchor the labor euro cost in the reference shop profile.","local_path":"data\raw\eurostat_labor_level.json","code_used":"tools.analysis.doner_world_model.fetch_labor_level","type":"primary"},{"title":"EIA Europe Brent Spot Price FOB monthly history","url":"https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?f=m&n=pet&s=rbrte","access_date":"2026-04-08","license":"U.S. Energy Information Administration public data","why_used":"Official Brent benchmark for the oil shock input.","local_path":"data\raw\eia_brent_monthly.html","code_used":"tools.analysis.doner_world_model.fetch_brent_monthly","type":"primary"},{"title":"YouGov survey cited by dpa/Stern for 2025 average counter Döner price","url":"https://www.stern.de/wirtschaft/news/doener-preis-in-deutschland-bei-diesen-vier-faktoren-sind-kunden-schmerzfrei-35592652.html","access_date":"2026-04-08","license":"Contextual press citation","why_used":"Published consumer benchmark for the average counter Döner level used in calibration.","local_path":null,"code_used":null,"type":"secondary"},{"title":"Lieferando Döner-Index 2025, average delivery price in Germany","url":"https://newsroom.justeattakeaway.com/de-DE/250877-lieferando-enthullt-doner-preise-in-halle-am-gunstigsten/","access_date":"2026-04-08","license":"Corporate press release","why_used":"External plausibility check for delivery-vs-counter uplift.","local_path":null,"code_used":null,"type":"secondary"},{"title":"Umsatzsteuer-Anwendungserlass § 12.16 Abs. 8","url":"https://www.bundesfinanzministerium.de/Content/DE/Standardartikel/Themen/Steuern/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/Umsatzsteuer-Anwendungserlass.html","access_date":"2026-04-08","license":"Official federal guidance","why_used":"Tax-policy note for the reduced VAT treatment of takeaway food.","local_path":null,"code_used":null,"type":"primary"}],"summary":{"analysis_created":"2026-04-08","base_month":"2025-12","base_brent_usd":62.54,"base_counter_price_eur":7.11,"base_net_price_eur":6.64,"buffer_eur":0.6,"delivery_plausibility_eur":8.03,"delivery_uplift_vs_counter_eur":0.92,"short_run_delta_100_vs_base_eur":0.03,"long_run_delta_100_vs_base_eur":0.17,"diesel_beta":0.567,"freight_beta":0.407,"packaging_beta":0.303,"packaging_edge_retained":true,"pass_through_long_beta":0.787,"pass_through_short_beta":0.121,"pass_through_speed":0.071,"component_breakdown_eur":{"meat":2.311,"bread":0.469,"vegetables":0.224,"sauce":0.213,"packaging":0.08,"energy":0.24,"labor":1.969,"rent":0.236,"other":0.3,"buffer":0.604},"vat_eur":0.465}};</script>
+  <script>
+    (() => {
+      const data = WORLD_MODEL_DATA;
+      const vatRate = data.benchmark.vat_rate;
+      const baseComponents = structuredClone(data.cost_tree.visible_components);
+      const baseBrent = data.scenario_defaults.brent_usd;
+      const basePrice = data.current_price_outputs.long_run_gross;
+      const colors = { meat: "#9a3023", bread: "#c89b54", vegetables: "#7f9455", sauce: "#d3cfc6", packaging: "#8f8c86", energy: "#d0673b", labor: "#355c87", rent: "#7f6aa8", other: "#9b9b9b", buffer: "#5d5d5d", vat: "#1f1f1f" };
+      const labels = { meat: "Fleisch", bread: "Brot", vegetables: "Gemüse", sauce: "Soße", packaging: "Verpackung", energy: "Energie", labor: "Arbeit", rent: "Miete", other: "Sonstiges", buffer: "Puffer", vat: "MwSt." };
+      const ordered = ["meat", "bread", "vegetables", "sauce", "packaging", "energy", "labor", "rent", "other", "buffer"];
+      const overrideState = { meat: 1, labor: 1, energy: 1, rent: 1 };
+      const fmt = (value, digits = 2) => `${value.toFixed(digits).replace(".", ",")} €`;
+      const fmtNum = (value, digits = 1) => value.toFixed(digits).replace(".", ",");
+      const pctText = (value) => `${Math.round(value * 100)} % der Basis`;
+      function scenario(brentUsd) {
+        const brentRatio = brentUsd / baseBrent;
+        const dieselRatio = Math.pow(brentRatio, data.oil_edges.diesel_on_brent);
+        const freightRatio = Math.pow(dieselRatio, data.oil_edges.freight_on_diesel);
+        const packagingOilRatio = data.oil_edges.packaging_edge_retained ? Math.pow(brentRatio, data.oil_edges.packaging_on_brent) : 1;
+        const useManual = (key) => Math.abs(overrideState[key] - 1) > 1e-6;
+        const raw = {
+          meat: useManual("meat") ? baseComponents.meat * overrideState.meat : baseComponents.meat * Math.pow(freightRatio, data.oil_edges.logistics_shares.meat),
+          bread: baseComponents.bread * Math.pow(freightRatio, data.oil_edges.logistics_shares.bread),
+          vegetables: baseComponents.vegetables * Math.pow(freightRatio, data.oil_edges.logistics_shares.vegetables),
+          sauce: baseComponents.sauce * Math.pow(freightRatio, data.oil_edges.logistics_shares.sauce),
+          packaging: baseComponents.packaging * Math.pow(freightRatio, data.oil_edges.logistics_shares.packaging) * packagingOilRatio,
+          energy: baseComponents.energy * (useManual("energy") ? overrideState.energy : 1),
+          labor: baseComponents.labor * (useManual("labor") ? overrideState.labor : 1),
+          rent: baseComponents.rent * (useManual("rent") ? overrideState.rent : 1),
+          other: baseComponents.other,
+          buffer: baseComponents.buffer,
+        };
+        const baseWithoutBuffer = Object.entries(baseComponents).filter(([key]) => key !== "buffer").reduce((sum, [, value]) => sum + value, 0);
+        const rawWithoutBuffer = Object.entries(raw).filter(([key]) => key !== "buffer").reduce((sum, [, value]) => sum + value, 0);
+        const inputChange = rawWithoutBuffer / baseWithoutBuffer;
+        const baseNet = Object.values(baseComponents).reduce((sum, value) => sum + value, 0);
+        const longNet = baseNet * Math.pow(inputChange, data.pass_through_params.long_run_beta);
+        const shortNet = baseNet * Math.pow(inputChange, data.pass_through_params.short_run_beta);
+        function rescale(targetNet) {
+          const keys = Object.keys(baseComponents);
+          const baseVec = keys.map((key) => baseComponents[key]);
+          const rawVec = keys.map((key) => raw[key]);
+          const deltaVec = rawVec.map((value, idx) => value - baseVec[idx]);
+          const deltaSum = deltaVec.reduce((sum, value) => sum + value, 0);
+          const baseSum = baseVec.reduce((sum, value) => sum + value, 0);
+          if (Math.abs(deltaSum) < 1e-9) {
+            const out = {};
+            keys.forEach((key, idx) => { out[key] = baseVec[idx]; });
+            out.buffer += targetNet - baseSum;
+            return out;
+          }
+          const scale = (targetNet - baseSum) / deltaSum;
+          const out = {};
+          keys.forEach((key, idx) => { out[key] = baseVec[idx] + deltaVec[idx] * scale; });
+          return out;
+        }
+        return {
+          brentUsd,
+          dieselRatio,
+          freightRatio,
+          longComponents: rescale(longNet),
+          longVat: longNet * vatRate,
+          shortGross: shortNet * (1 + vatRate),
+          longGross: longNet * (1 + vatRate),
+          manualFlags: { meat: useManual("meat"), labor: useManual("labor"), energy: useManual("energy"), rent: useManual("rent") },
+        };
+      }
+      const brentSlider = document.getElementById("brent-slider");
+      brentSlider.value = String(Math.round(baseBrent));
+      const chipRow = document.getElementById("chip-row");
+      data.scenario_defaults.chips.forEach((value) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "chip";
+        button.textContent = `${value} $`;
+        button.addEventListener("click", () => { brentSlider.value = String(value); render(); });
+        chipRow.appendChild(button);
+      });
+      document.querySelectorAll("[data-override]").forEach((input) => {
+        input.addEventListener("input", () => {
+          overrideState[input.dataset.override] = Number(input.value) / 100;
+          document.getElementById(`override-${input.dataset.override}-value`).textContent = pctText(overrideState[input.dataset.override]);
+          render();
+        });
+      });
+      brentSlider.addEventListener("input", render);
+      function renderLegend(components, vat) {
+        const legend = document.getElementById("legend");
+        legend.innerHTML = "";
+        const total = Object.values(components).reduce((sum, value) => sum + value, 0) + vat;
+        [...ordered, "vat"].forEach((key) => {
+          const value = key === "vat" ? vat : components[key];
+          const item = document.createElement("div");
+          item.className = "legend-item";
+          item.innerHTML = `<div class="legend-name"><span class="dot" style="background:${colors[key]}"></span><span>${labels[key]}</span></div><strong>${fmt(value)}</strong>`;
+          legend.appendChild(item);
+        });
+        const bar = document.getElementById("stacked-bar");
+        bar.innerHTML = "";
+        [...ordered, "vat"].forEach((key) => {
+          const value = key === "vat" ? vat : components[key];
+          const segment = document.createElement("div");
+          segment.className = "stack";
+          segment.style.width = `${(value / total) * 100}%`;
+          segment.style.background = colors[key];
+          segment.title = `${labels[key]}: ${fmt(value)}`;
+          bar.appendChild(segment);
+        });
+      }
+      function renderDependency(state) {
+        const svg = document.getElementById("dependency-svg");
+        const nodes = [
+          { id: "brent", label: "Brent", x: 40, y: 30 }, { id: "diesel", label: "Diesel", x: 170, y: 30 }, { id: "freight", label: "Fracht", x: 320, y: 30 },
+          { id: "meat", label: "Fleisch", x: 470, y: 18 }, { id: "veg", label: "Gemüse", x: 470, y: 70 }, { id: "sauce", label: "Soße", x: 470, y: 122 }, { id: "packaging", label: "Verpackung", x: 470, y: 174 },
+          { id: "labor", label: "Arbeit", x: 170, y: 186 }, { id: "energy", label: "Strom/Gas", x: 320, y: 186 }, { id: "rent", label: "Miete", x: 40, y: 186 },
+        ];
+        const active = "#b53a2d";
+        const passive = "#c9c3b7";
+        const broken = "#9b9b9b";
+        svg.innerHTML = "";
+        function line(x1, y1, x2, y2, color, dashed = false) {
+          const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          el.setAttribute("x1", x1); el.setAttribute("y1", y1); el.setAttribute("x2", x2); el.setAttribute("y2", y2); el.setAttribute("stroke", color); el.setAttribute("stroke-width", "3");
+          if (dashed) el.setAttribute("stroke-dasharray", "7 7");
+          svg.appendChild(el);
+        }
+        line(112, 54, 170, 54, active); line(252, 54, 320, 54, active);
+        line(402, 54, 470, 42, state.manualFlags.meat ? broken : active, state.manualFlags.meat);
+        line(402, 54, 470, 94, active); line(402, 54, 470, 146, active); line(402, 54, 470, 198, active);
+        line(110, 210, 170, 210, state.manualFlags.rent ? broken : passive, state.manualFlags.rent);
+        line(252, 210, 320, 210, state.manualFlags.energy ? broken : passive, state.manualFlags.energy);
+        line(402, 210, 470, 210, state.manualFlags.labor ? broken : passive, state.manualFlags.labor);
+        nodes.forEach((node) => {
+          const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          rect.setAttribute("x", node.x); rect.setAttribute("y", node.y); rect.setAttribute("rx", "14"); rect.setAttribute("ry", "14");
+          rect.setAttribute("width", node.id === "packaging" ? 122 : 108); rect.setAttribute("height", "46");
+          rect.setAttribute("fill", "#fffdf8"); rect.setAttribute("stroke", "#d9d3c8"); rect.setAttribute("stroke-width", "1.5"); svg.appendChild(rect);
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", node.x + 54); text.setAttribute("y", node.y + 28); text.setAttribute("text-anchor", "middle");
+          text.setAttribute("font-size", "15"); text.setAttribute("font-family", "system-ui, sans-serif"); text.setAttribute("fill", "#151515"); text.textContent = node.label; svg.appendChild(text);
+        });
+      }
+      function renderSources() {
+        const target = document.getElementById("sources-list");
+        target.innerHTML = "";
+        data.sources_manifest.forEach((source) => {
+          const li = document.createElement("li");
+          const anchor = source.url ? `<a href="${source.url}">${source.title}</a>` : source.title;
+          li.innerHTML = `${anchor} — ${source.why_used}`;
+          target.appendChild(li);
+        });
+      }
+      function render() {
+        const brentUsd = Number(brentSlider.value);
+        const state = scenario(brentUsd);
+        document.getElementById("brent-value").textContent = `${fmtNum(brentUsd, 0)} Dollar je Barrel`;
+        document.querySelectorAll(".chip").forEach((chip) => chip.classList.toggle("active", chip.textContent === `${brentUsd} $`));
+        document.getElementById("metric-price").textContent = fmt(state.longGross);
+        document.getElementById("metric-short").textContent = `${state.shortGross >= basePrice ? "+" : ""}${fmt(state.shortGross - basePrice)}`;
+        document.getElementById("metric-long").textContent = `${state.longGross >= basePrice ? "+" : ""}${fmt(state.longGross - basePrice)}`;
+        document.getElementById("bar-headline").textContent = `${fmt(state.longGross)} brutto`;
+        document.getElementById("lede-price").textContent = fmt(state.longGross);
+        document.getElementById("footer-month").textContent = data.base_month;
+        document.getElementById("scenario-text").textContent = brentUsd === Math.round(baseBrent) ? "Bei Basis-Brent bleibt der Referenz-Döner auf seinem kalibrierten Ausgangsniveau." : `Von ${fmtNum(baseBrent, 1)} auf ${fmtNum(brentUsd, 0)} Dollar Brent steigt der Referenz-Döner sofort um ${fmt(state.shortGross - basePrice)} und mittelfristig um ${fmt(state.longGross - basePrice)}.`;
+        document.getElementById("pull-quote").textContent = `Von ${fmtNum(baseBrent, 1)} auf ${fmtNum(brentUsd, 0)} Dollar Brent verschiebt der Ölpfad den Referenz-Döner im Modell mittelfristig um ${fmt(state.longGross - basePrice)}.`;
+        renderLegend(state.longComponents, state.longGross - Object.values(state.longComponents).reduce((sum, value) => sum + value, 0));
+        renderDependency(state);
+      }
+      render();
+      renderSources();
+    })();
+  </script>
+</body>
+</html>
