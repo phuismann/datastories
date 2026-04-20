@@ -1,0 +1,920 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Warum zahlt Deutschland so viel mehr für Strom als der Rest Europas?</title>
+  <style>
+    :root {
+      --bg:     #fbfaf7;
+      --paper:  #ffffff;
+      --text:   #141414;
+      --muted:  #676767;
+      --line:   #ddd8d1;
+      --accent: #b33b2f;
+      --soft:   #f4efe7;
+      --de:     #b33b2f;
+      --dk:     #c07030;
+      --it:     #2166ac;
+      --fr:     #3a9b6f;
+      --es:     #8060b0;
+      --pl:     #888888;
+      --eu:     #333333;
+    }
+
+    * { box-sizing: border-box; margin: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    /* ── Article header ────────────────────────────────────────── */
+    .article-header {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 52px 20px 0;
+    }
+
+    .article-label {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      font-family: system-ui, sans-serif;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      max-width: 720px;
+    }
+
+    .deck {
+      margin-top: 20px;
+      max-width: 680px;
+      color: #393939;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      font-family: system-ui, sans-serif;
+    }
+
+    .byline {
+      margin-top: 24px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-family: system-ui, sans-serif;
+    }
+
+    .byline a { color: inherit; }
+
+    /* ── Lede ──────────────────────────────────────────────────── */
+    .lede-section {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px 0;
+    }
+
+    p {
+      margin-top: 22px;
+      font-size: 1.06rem;
+      line-height: 1.78;
+      max-width: 720px;
+    }
+
+    .lede-section p:first-child { margin-top: 0; }
+
+    /* ── Scroll root + sticky chart ────────────────────────────── */
+    #scroll-root {
+      position: relative;
+      margin-top: 48px;
+      padding: 0 20px;
+    }
+
+    #sticky-chart {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      height: 52vh;
+      min-height: 320px;
+      max-height: 500px;
+      background: var(--bg);
+      border-bottom: 2px solid var(--line);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      justify-content: stretch;
+    }
+
+    #chart-wrap {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+
+    #chart {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Legend ────────────────────────────────────────────────── */
+    #chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 18px;
+      padding: 7px 14px 8px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      font-family: system-ui, sans-serif;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-swatch {
+      display: inline-block;
+      width: 22px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .legend-swatch.de { background: var(--de); height: 3.5px; }
+    .legend-swatch.dk { background: var(--dk); }
+    .legend-swatch.it { background: var(--it); }
+    .legend-swatch.fr { background: var(--fr); }
+    .legend-swatch.es { background: var(--es); }
+    .legend-swatch.pl { background: var(--pl); }
+    .legend-swatch.eu { background: var(--eu); border-top: 2px dashed var(--eu); background: none; }
+
+    /* ── Narrative ─────────────────────────────────────────────── */
+    #narrative {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .narrative-section {
+      min-height: 52vh;
+      padding: 40px 0 40px;
+      border-bottom: 1px solid var(--line);
+      opacity: 0.52;
+      transition: opacity 0.4s ease;
+    }
+
+    .narrative-section:last-child { border-bottom: none; }
+    .narrative-section.active { opacity: 1; }
+
+    .narrative-section h2 {
+      font-size: clamp(1.4rem, 4vw, 2.1rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .narrative-section .year-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: system-ui, sans-serif;
+      margin-bottom: 12px;
+    }
+
+    .narrative-section p {
+      max-width: 640px;
+    }
+
+    .callout {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    @media (min-width: 1100px) {
+      #scroll-root {
+        max-width: 1260px;
+        margin: 56px auto 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.9fr);
+        grid-template-areas: "narrative chart";
+        gap: 40px;
+        align-items: start;
+      }
+
+      #narrative {
+        grid-area: narrative;
+        max-width: 620px;
+        margin: 0;
+      }
+
+      #sticky-chart {
+        grid-area: chart;
+        top: 72px;
+        height: 46vh;
+        min-height: 300px;
+        max-height: 440px;
+        border-bottom: 2px solid var(--line);
+      }
+
+      #chart-legend {
+        gap: 4px 14px;
+        padding: 6px 12px 7px;
+        font-size: 0.72rem;
+      }
+
+      .narrative-section {
+        min-height: 44vh;
+        padding: 28px 0 36px;
+        opacity: 0.62;
+      }
+
+      .narrative-section p {
+        max-width: 56ch;
+      }
+    }
+
+    /* ── Post-scroll body ──────────────────────────────────────── */
+    .body-section {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 52px 20px 0;
+    }
+
+    .body-section h2 {
+      font-size: clamp(1.4rem, 4vw, 2.1rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      padding-top: 8px;
+      border-top: 3px solid var(--text);
+    }
+
+    .note {
+      margin-top: 28px;
+      padding: 14px 18px;
+      background: var(--soft);
+      border-left: 3px solid var(--accent);
+      font-size: 0.93rem;
+      line-height: 1.65;
+      font-family: system-ui, sans-serif;
+      color: #444;
+    }
+
+    /* ── Sources ───────────────────────────────────────────────── */
+    .sources-section {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+    }
+
+    .sources-section h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: system-ui, sans-serif;
+      margin-bottom: 16px;
+      color: var(--muted);
+    }
+
+    .sources-section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sources-section li {
+      font-size: 0.84rem;
+      font-family: system-ui, sans-serif;
+      color: var(--muted);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .sources-section a { color: var(--accent); }
+
+    footer {
+      border-top: 1px solid var(--line);
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px 20px 48px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ── Article header ──────────────────────────────────────────────────── -->
+<div class="article-header">
+  <p class="article-label">Energie · EU-Preisvergleich · Strom</p>
+  <h1>Warum zahlt Deutschland so viel mehr für Strom?</h1>
+  <p class="deck">Ein Blick auf 20 Jahre Haushaltsstrompreise in Europa — von der EEG-Umlage über die Energiekrise bis zum Höchststand 2022.</p>
+  <p class="byline">
+    Von <a href="https://github.com/phuismann">github.com/phuismann</a> &nbsp;·&nbsp;
+    7. April 2026 &nbsp;·&nbsp;
+    Daten: Eurostat nrg_pc_204
+  </p>
+</div>
+
+<!-- ── Lede ────────────────────────────────────────────────────────────── -->
+<div class="lede-section">
+  <p>Im zweiten Halbjahr 2022 zahlten deutsche Haushalte im Schnitt <span class="callout">0,41 EUR pro Kilowattstunde</span>, mehr als dreimal so viel wie polnische Verbraucher und doppelt so viel wie Franzosen. Der Ausschlag entstand aus hohen Abgaben, steigenden Netzkosten und der Gaspreiskrise. Der Peak spricht nicht gegen erneuerbare Energien. Er zeigt, wie teuer Deutschland Ausbau und Absicherung lange auf Haushalte verteilt hat.</p>
+  <p>Scrollen Sie durch die letzten zwanzig Jahre. Der Preischart baut sich Abschnitt für Abschnitt auf.</p>
+</div>
+
+<!-- ── Scroll root: sticky chart + narrative ───────────────────────────── -->
+<div id="scroll-root">
+
+  <div id="sticky-chart">
+    <div id="chart-wrap">
+      <svg id="chart"></svg>
+    </div>
+    <div id="chart-legend">
+      <span class="legend-item"><span class="legend-swatch de"></span>Deutschland</span>
+      <span class="legend-item"><span class="legend-swatch dk"></span>Dänemark</span>
+      <span class="legend-item"><span class="legend-swatch it"></span>Italien</span>
+      <span class="legend-item"><span class="legend-swatch fr"></span>Frankreich</span>
+      <span class="legend-item"><span class="legend-swatch es"></span>Spanien</span>
+      <span class="legend-item"><span class="legend-swatch pl"></span>Polen</span>
+      <span class="legend-item"><span class="legend-swatch eu"></span>EU-27 Schnitt</span>
+    </div>
+  </div>
+
+  <!-- ── Narrative sections ─────────────────────────────────────────────── -->
+  <div id="narrative">
+
+    <div class="narrative-section" data-year-start="2005" data-year-end="2007">
+      <p class="year-label">2005 – 2007 · Die Ausgangslage</p>
+      <h2>Deutschland startet hoch. Die große Lücke kommt erst später.</h2>
+      <p>Zu Beginn der Zeitreihe liegt Deutschland bei rund <span class="callout">0,18 EUR/kWh</span>, der EU-Schnitt bei etwa 0,11 EUR. Deutschland liberalisiert den Strommarkt früh. Zusätzlich kommt die EEG-Umlage seit 2000 dazu. In dieser Phase bleibt sie aber noch begrenzt.</p>
+      <p>Frankreich bleibt mit regulierten EDF-Tarifen unter 0,10 EUR/kWh. Polen liegt mit seinem kohlelastigen System ebenfalls deutlich darunter. Dänemark liegt schon früh hoch, auch wegen Energiesteuern.</p>
+    </div>
+
+    <div class="narrative-section" data-year-start="2008" data-year-end="2010">
+      <p class="year-label">2008 – 2010 · Finanzkrise</p>
+      <h2>Die Krise senkt Börsenpreise. Haushalte merken davon in Deutschland wenig.</h2>
+      <p>Nach dem Kollaps von Lehman Brothers im September 2008 fällt die industrielle Nachfrage in Europa. Die Großhandelspreise geben nach. In Spanien, Italien und Polen zeigt sich das schneller auf der Haushaltsrechnung.</p>
+      <p>In Deutschland wirken andere Bestandteile stärker. Netzentgelte und Umlagen laufen nur teilweise mit dem Markt. Deshalb bleiben die Haushaltspreise hoch, obwohl Strom an der Börse billiger wird.</p>
+    </div>
+
+    <div class="narrative-section" data-year-start="2011" data-year-end="2012">
+      <p class="year-label">2011 – 2012 · Fukushima und Atomausstieg</p>
+      <h2>Nach Fukushima steigen die Systemkosten, nicht nur der Börsenpreis.</h2>
+      <p>Nach Fukushima beschließt Deutschland den beschleunigten Atomausstieg. Gleichzeitig baut das Land Wind und Solar schneller aus. Das verändert nicht nur die Erzeugung. Es erhöht auch den Druck auf Netze, Reservekapazitäten und Umlagen.</p>
+      <p><span class="callout">2012 überholt Deutschland erstmals Dänemark</span> und wird der teuerste große Strommarkt in der EU. Der Schritt zu mehr erneuerbarer Erzeugung bleibt richtig. Teuer wird vor allem die Art, wie Deutschland Ausbau und Umbau auf die Stromrechnung legt.</p>
+    </div>
+
+    <div class="narrative-section" data-year-start="2013" data-year-end="2014">
+      <p class="year-label">2013 – 2014 · EEG-Umlage als Kostentreiber</p>
+      <h2>2013 zeigt sich, wie teuer der damalige Finanzierungsweg war.</h2>
+      <p>Die EEG-Umlage erreicht 2013 etwa <span class="callout">0,053 EUR/kWh</span>. Das ist knapp ein Drittel des gesamten Haushaltsstrompreises. Damit finanziert Deutschland die festen Vergütungen für Solar- und Windanlagen aus den Boomjahren.</p>
+      <p>Gleichzeitig senken Wind und Solar den Börsenpreis in vielen Stunden. Genau das vergrößert damals aber auch die Lücke zur garantierten Vergütung. Diese Konstruktion treibt die Umlage nach oben.</p>
+    </div>
+
+    <div class="narrative-section" data-year-start="2014" data-year-end="2019">
+      <p class="year-label">2014 – 2019 · Stabilisierung</p>
+      <h2>Die Preise beruhigen sich. Der Abstand bleibt.</h2>
+      <p>Die EEG-Reform 2014 bremst das Wachstum der Umlage. Ausschreibungen ersetzen feste Vergütungen. Der Ausbau wird kontrollierter. Der deutsche Haushaltsstrompreis stabilisiert sich zwischen <span class="callout">0,28 und 0,32 EUR/kWh</span>.</p>
+      <p>In Europa bleibt Strom in diesen Jahren insgesamt bezahlbar. Gas ist günstig. Frankreich bleibt unter 0,18 EUR/kWh, Polen oft unter 0,15 EUR/kWh. Deutschland bleibt deutlich darüber.</p>
+      <p>Deutschland war schon vor der Krise teuer. 2021 und 2022 haben den Abstand nur sichtbar vergrößert.</p>
+    </div>
+
+    <div class="narrative-section" data-year-start="2020" data-year-end="2020">
+      <p class="year-label">2020 · Corona-Krise</p>
+      <h2>Billiger Strom an der Börse heißt nicht billiger Strom zu Hause.</h2>
+      <p>Die Lockdowns im Frühjahr 2020 drücken die industrielle Nachfrage. An einzelnen Stunden entstehen sogar negative Börsenpreise. Großhandelsstrom ist damit so billig wie seit Jahren nicht.</p>
+      <p>Haushalte in Deutschland spüren davon kaum etwas. Netzentgelte, EEG-Umlage und Mehrwertsteuer machen zusammen mehr als 60 Prozent des Endpreises aus. In Spanien und Italien reagiert der Endpreis stärker auf den Markt.</p>
+    </div>
+
+    <div class="narrative-section" data-year-start="2021" data-year-end="2022">
+      <p class="year-label">2021 – 2022 · Russland, Gas und der Schock</p>
+      <h2>Die Gaspreiskrise trifft einen ohnehin teuren Markt.</h2>
+      <p>Ab Mitte 2021 steigen die europäischen Gaspreise stark. Speicher sind niedrig gefüllt, Gas bleibt knapp, und der CO2-Preis im EU-ETS zieht an. In allen EU-Ländern steigen die Strompreise für Haushalte.</p>
+      <p>Am <span class="callout">24. Februar 2022</span> verschärft Russlands Angriff auf die Ukraine die Lage. Deutschland ist besonders exponiert, weil 2021 rund 55 Prozent des Erdgases aus Russland kamen. Gaskraftwerke setzen oft den Grenzpreis im Strommarkt. Wenn Gas teuer wird, zieht die Haushaltsrechnung nach.</p>
+    </div>
+
+    <div class="narrative-section" data-year-start="2022" data-year-end="2023">
+      <p class="year-label">2022 – 2023 · Preishöchststand und Rückgang</p>
+      <h2>2022 bringt den Peak. Danach sinken die Preise nur langsam.</h2>
+      <p>Im zweiten Halbjahr 2022 erreicht der deutsche Haushaltsstrompreis <span class="callout">0,41 EUR/kWh</span>. Das ist der höchste Wert in der Eurostat-Reihe. Ein Durchschnittshaushalt mit 3.500 kWh im Jahr zahlt damit rund 1.435 Euro.</p>
+      <p>Frankreich dämpft den Anstieg mit dem bouclier tarifaire. Deutschland gibt den Schock stärker weiter. So wächst der Abstand zwischen beiden Ländern auf mehr als 0,20 EUR/kWh.</p>
+      <p>2023 fallen die Gaspreise wieder. Die Haushaltsstrompreise folgen, aber verzögert. Der Anstieg kommt schnell, die Entlastung später.</p>
+    </div>
+
+    <div class="narrative-section" data-year-start="2024" data-year-end="2025">
+      <p class="year-label">2024 · Wo stehen wir heute</p>
+      <h2>Die Krise ist vorbei. Die Kostenfrage bleibt.</h2>
+      <p>Ende 2024 liegt Deutschland bei rund <span class="callout">0,31 EUR/kWh</span>. Das ist deutlich weniger als am Krisenpeak, aber mehr als vor 2020. Der Umbau des Stromsystems läuft weiter. Netze, Flexibilität und Speicher kosten Geld. Genau diese Kosten landen oft auf der Stromrechnung.</p>
+      <p>Deutschland und Dänemark bleiben damit die teuersten großen Haushaltsstrommärkte in dieser Auswahl. Der Punkt ist nicht weniger Wind oder Solar. Der Punkt ist ein Finanzierungsmodell, das sauberen Strom und Systemumbau noch immer teuer über Haushaltskunden abwickelt.</p>
+    </div>
+
+  </div><!-- #narrative -->
+</div><!-- #scroll-root -->
+
+<!-- ── Post-scroll body ─────────────────────────────────────────────────── -->
+<div class="body-section">
+  <h2>Methodik und Einschränkungen</h2>
+  <p>Die Daten stammen aus Eurostat-Datensatz <strong>nrg_pc_204</strong> (Haushaltsstrompreise). Verwendet wird die Kategorie <strong>I_TAX</strong> (inklusive aller Steuern und Abgaben), Verbrauchsband <strong>KWH4999</strong> (2.500–4.999 kWh/Jahr), Währung EUR. Die Daten erscheinen halbjährlich (H1 und H2).</p>
+
+  <div class="note">
+    <strong>Hinweis zu Frankreich:</strong> Der französische Haushaltsstrompreis spiegelt keinen freien Marktpreis wider. EDF bietet den staatlich regulierten Tarif réglementé de vente (TRV) an. In den Jahren 2021–2023 gab es zusätzlich den Bouclier Tarifaire (staatliche Preisbremse), der Preiserhöhungen auf 4 % (2022) und 15 % (2023) begrenzte. Der niedrige französische Preis ist politisch gestützt — nicht strukturell günstig.
+  </div>
+
+  <div class="note">
+    <strong>EU-27-Schnitt:</strong> Die EU27_2020-Zeitreihe (post-Brexit) beginnt in Eurostat für einige Perioden erst ab 2007 oder 2008. Fehlende Werte zu Beginn der Zeitreihe sind datenbedingt, nicht methodisch.
+  </div>
+
+  <p>Der Vergleich basiert auf Haushaltsstrompreisen, nicht auf Großhandels- oder Industriepreisen. Unterschiede in Steuersystemen, regulatorischen Auflagen und Versorgungsstrukturen werden in der I_TAX-Reihe zusammengefasst und sind für internationale Vergleiche wichtig, aber schwer zu disaggregieren.</p>
+</div>
+
+<!-- ── Sources ─────────────────────────────────────────────────────────── -->
+<div class="sources-section">
+  <h2>Quellen</h2>
+  <ul>
+    <li>
+      <strong>Eurostat — nrg_pc_204:</strong> Electricity prices for household consumers (bi-annual data).
+      I_TAX, KWH4999, EUR. Freie Nutzung mit Quellenangabe.
+      <a href="https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_204/" target="_blank" rel="noopener">ec.europa.eu/eurostat</a>
+    </li>
+    <li>
+      Analyse und Visualisierung: <a href="https://github.com/phuismann" target="_blank" rel="noopener">github.com/phuismann</a>
+    </li>
+  </ul>
+</div>
+
+<footer>
+  Daten: Eurostat nrg_pc_204 · © EU, freie Nutzung mit Attribution ·
+  Code: <a href="https://github.com/phuismann" target="_blank" rel="noopener">github.com/phuismann</a>
+</footer>
+
+<!-- ── Data (injected by build_page.py) ────────────────────────────────── -->
+<script>const PRICES_DATA = {"countries":["DE","FR","IT","ES","DK","PL","EU27_2020"],"labels":{"DE":"Deutschland","FR":"Frankreich","IT":"Italien","ES":"Spanien","DK":"Dänemark","PL":"Polen","EU27_2020":"EU-27 Schnitt"},"periods":["2007-S1","2007-S2","2008-S1","2008-S2","2009-S1","2009-S2","2010-S1","2010-S2","2011-S1","2011-S2","2012-S1","2012-S2","2013-S1","2013-S2","2014-S1","2014-S2","2015-S1","2015-S2","2016-S1","2016-S2","2017-S1","2017-S2","2018-S1","2018-S2","2019-S1","2019-S2","2020-S1","2020-S2","2021-S1","2021-S2","2022-S1","2022-S2","2023-S1","2023-S2","2024-S1","2024-S2","2025-S1"],"series":{"DE":[0.2025,0.2105,0.2148,0.2195,0.2282,0.2294,0.2375,0.2438,0.2528,0.2531,0.2595,0.2676,0.2919,0.2921,0.2981,0.2974,0.2951,0.2946,0.2969,0.2977,0.3048,0.3048,0.2987,0.3,0.3088,0.2878,0.3043,0.3006,0.3193,0.3234,0.3279,0.3357,0.4125,0.402,0.3951,0.3943,0.3835],"FR":[null,0.1222,0.1213,0.1203,0.1206,0.1207,0.1283,0.135,0.1383,0.1422,0.1392,0.1501,0.1524,0.1596,0.1585,0.1702,0.1676,0.1682,0.1685,0.1711,0.1704,0.1756,0.1748,0.1799,0.1778,0.1913,0.1893,0.1958,0.1946,0.2022,0.2092,0.2204,0.23,0.2591,0.2847,0.2926,0.2664],"IT":[null,null,0.2031,0.2227,0.2098,0.1997,0.1965,0.192,0.1987,0.2065,0.2132,0.2297,0.2292,0.2323,0.2446,0.2338,0.245,0.2428,0.2342,0.2261,0.2132,0.208,0.2067,0.2161,0.2301,0.2341,0.2226,0.2153,0.2259,0.236,0.3115,0.3641,0.3782,0.3347,0.3274,0.3111,0.3291],"ES":[null,0.14,0.1366,0.1557,0.1577,0.1684,0.1728,0.1851,0.1981,0.2088,0.219,0.2275,0.2228,0.2273,0.2165,0.2367,0.2309,0.237,0.2185,0.2284,0.2296,0.2177,0.2383,0.2477,0.2403,0.2394,0.2239,0.2298,0.2323,0.2816,0.3071,0.335,0.2454,0.2347,0.2436,0.2408,0.2608],"DK":[null,0.2401,0.2635,0.2785,0.2699,0.2555,0.267,0.2708,0.2908,0.2976,0.2997,0.2972,0.3,0.2936,0.3042,0.3035,0.3068,0.3042,0.3088,0.3084,0.3049,0.301,0.3126,0.3123,0.2984,0.2924,0.2833,0.2819,0.29,0.3448,0.4559,0.5871,0.3811,0.3554,0.3708,0.3763,0.3485],"PL":[null,0.138,0.1259,0.1295,0.1131,0.1291,0.1341,0.1382,0.1471,0.1351,0.1418,0.1529,0.148,0.1437,0.1421,0.1408,0.1444,0.1418,0.1332,0.1352,0.1446,0.1451,0.141,0.1396,0.1343,0.1376,0.1475,0.151,0.1548,0.1574,0.1464,0.1604,0.1769,0.2162,0.209,0.2477,0.2559],"EU27_2020":[0.1826,0.1537,0.1604,0.1676,0.167,0.1677,0.1725,0.1777,0.1858,0.1886,0.1916,0.1996,0.2042,0.2062,0.2058,0.2084,0.2083,0.2089,0.2051,0.2069,0.2089,0.2089,0.2103,0.2152,0.2168,0.2169,0.2139,0.2153,0.2203,0.2415,0.249,0.2768,0.2887,0.2847,0.2916,0.2887,0.2872]}};</script>
+
+<!-- ── D3 v7 ────────────────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+
+<!-- ── Chart + scroll logic ─────────────────────────────────────────────── -->
+<script>
+(function () {
+  'use strict';
+
+  if (typeof PRICES_DATA === 'undefined') {
+    console.warn('PRICES_DATA not found — run build_page.py to inject data.');
+    return;
+  }
+
+  // ── Config ────────────────────────────────────────────────────────────────
+  const COUNTRY_ORDER = ['DE', 'DK', 'IT', 'FR', 'ES', 'PL', 'EU27_2020'];
+  const LABELS = {
+    DE: 'Deutschland', DK: 'Dänemark', IT: 'Italien',
+    FR: 'Frankreich', ES: 'Spanien', PL: 'Polen', EU27_2020: 'EU-27',
+  };
+  const COLORS = {
+    DE: '#b33b2f', DK: '#c07030', IT: '#2166ac',
+    FR: '#3a9b6f', ES: '#8060b0', PL: '#888888', EU27_2020: '#333333',
+  };
+  const LINEWIDTHS = { DE: 2.8 };
+  const DASHED = new Set(['EU27_2020']);
+
+  const EVENTS = [
+    { year: 2008.5, title: 'Finanzkrise',               date: 'Sep 2008', summary: 'Lehman Brothers kollabiert' },
+    { year: 2011.0, title: 'Fukushima & Atomausstieg',  date: 'Mrz 2011', summary: 'Beschleunigter Atomausstieg' },
+    { year: 2012.0, title: 'EEG-Umlage Höchststand',   date: '2012',     summary: 'DE überholt erstmals DK' },
+    { year: 2014.0, title: 'EEG-Reform',                date: '2014',     summary: 'Wachstum der Umlage gebremst' },
+    { year: 2020.0, title: 'Corona-Krise',              date: 'Mrz 2020', summary: 'Nachfrage bricht ein' },
+    { year: 2021.5, title: 'Energiekrise',              date: 'H2 2021',  summary: 'Gasknappheit + CO₂-Anstieg' },
+    { year: 2022.0, title: 'Russland greift Ukraine an', date: 'Feb 2022', summary: '24.02.2022 — Energiekrise eskaliert' },
+    { year: 2023.0, title: 'Preishöchststand',          date: 'H1 2023',  summary: 'DE: 0,41 EUR/kWh — Tarife holen Krise nach' },
+  ];
+
+  const YEAR_MIN = 2007;
+  const YEAR_MAX = 2025.5;
+
+  // ── Parse data ────────────────────────────────────────────────────────────
+  const periods = PRICES_DATA.periods;
+  const series  = PRICES_DATA.series;
+
+  function periodToYear(p) {
+    return parseInt(p.slice(0, 4)) + (parseInt(p.slice(-1)) - 1) * 0.5;
+  }
+
+  const pointsMap = {};
+  COUNTRY_ORDER.forEach(c => {
+    const vals = series[c] || [];
+    pointsMap[c] = periods.map((p, i) => ({
+      year: periodToYear(p),
+      value: vals[i],
+    })).filter(d => d.value != null);
+  });
+
+  // ── SVG setup ─────────────────────────────────────────────────────────────
+  const svgEl = document.getElementById('chart');
+  let W, H, margin, xScale, yScale, lineGen;
+  let clipRect, linesGroup, annotGroup, labelsGroup;
+
+  function setup() {
+    const wrap = svgEl.parentElement;
+    W = wrap.clientWidth  || wrap.getBoundingClientRect().width  || 700;
+    H = wrap.clientHeight || wrap.getBoundingClientRect().height || 360;
+
+    margin = {
+      top:    32,
+      right:  Math.min(90, W * 0.12),
+      bottom: 36,
+      left:   Math.min(52, W * 0.09),
+    };
+
+    // Clear previous render
+    d3.select(svgEl).selectAll('*').remove();
+    const svg = d3.select(svgEl)
+      .attr('width',  W)
+      .attr('height', H);
+
+    // Background
+    svg.append('rect').attr('width', W).attr('height', H)
+       .attr('fill', '#f4f0e8');
+    svg.append('rect')
+       .attr('x', margin.left).attr('y', margin.top)
+       .attr('width',  W - margin.left - margin.right)
+       .attr('height', H - margin.top - margin.bottom)
+       .attr('fill', '#f4f0e8');
+
+    // Scales
+    xScale = d3.scaleLinear()
+      .domain([2006.8, YEAR_MAX])
+      .range([margin.left, W - margin.right]);
+
+    yScale = d3.scaleLinear()
+      .domain([0, 0.50])
+      .range([H - margin.bottom, margin.top]);
+
+    // Grid lines
+    const gridG = svg.append('g').attr('class', 'grid');
+    [0, 0.10, 0.20, 0.30, 0.40, 0.50].forEach(v => {
+      gridG.append('line')
+        .attr('x1', margin.left).attr('x2', W - margin.right)
+        .attr('y1', yScale(v)).attr('y2', yScale(v))
+        .attr('stroke', '#ddd8d1').attr('stroke-width', 0.8);
+    });
+    for (let y = 2006; y < YEAR_MAX; y += 2) {
+      gridG.append('line')
+        .attr('x1', xScale(y)).attr('x2', xScale(y))
+        .attr('y1', margin.top).attr('y2', H - margin.bottom)
+        .attr('stroke', '#ddd8d1').attr('stroke-width', 0.4).attr('opacity', 0.6);
+    }
+
+    // Axes
+    const xAxis = d3.axisBottom(xScale)
+      .tickValues(d3.range(2006, YEAR_MAX, 2))
+      .tickFormat(d3.format('d'))
+      .tickSize(3);
+    const yAxis = d3.axisLeft(yScale)
+      .tickValues([0, 0.10, 0.20, 0.30, 0.40, 0.50])
+      .tickFormat(d => d.toFixed(2).replace('.', ','))
+      .tickSize(3);
+
+    svg.append('g')
+      .attr('transform', `translate(0,${H - margin.bottom})`)
+      .call(xAxis)
+      .selectAll('text')
+      .attr('font-size', '10px').attr('fill', '#676767')
+      .attr('font-family', 'system-ui, sans-serif');
+
+    svg.append('g')
+      .attr('transform', `translate(${margin.left},0)`)
+      .call(yAxis)
+      .selectAll('text')
+      .attr('font-size', '10px').attr('fill', '#676767')
+      .attr('font-family', 'system-ui, sans-serif');
+
+    // Remove axis lines
+    svg.selectAll('.domain').attr('stroke', '#ddd8d1');
+    svg.selectAll('.tick line').attr('stroke', '#ddd8d1');
+
+    // Y-axis label
+    svg.append('text')
+      .attr('transform', `rotate(-90)`)
+      .attr('x', -(H / 2))
+      .attr('y', 12)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '9px')
+      .attr('fill', '#888')
+      .attr('font-family', 'system-ui, sans-serif')
+      .text('EUR / kWh');
+
+    // Clip path for progressive reveal
+    clipRect = svg.append('defs').append('clipPath').attr('id', 'reveal-clip')
+      .append('rect')
+        .attr('x',      margin.left)
+        .attr('y',      0)
+        .attr('height', H)
+        .attr('width',  0);
+
+    lineGen = d3.line()
+      .defined(d => d.value != null)
+      .x(d => xScale(d.year))
+      .y(d => yScale(d.value))
+      .curve(d3.curveMonotoneX);
+
+    // Lines group (clipped)
+    linesGroup = svg.append('g').attr('clip-path', 'url(#reveal-clip)');
+    COUNTRY_ORDER.forEach(c => {
+      const pts = pointsMap[c];
+      if (!pts.length) return;
+      linesGroup.append('path')
+        .datum(pts)
+        .attr('class', `line-${c}`)
+        .attr('fill', 'none')
+        .attr('stroke', COLORS[c])
+        .attr('stroke-width', LINEWIDTHS[c] || 1.8)
+        .attr('stroke-dasharray', DASHED.has(c) ? '5,3' : null)
+        .attr('stroke-linecap', 'round')
+        .attr('d', lineGen);
+    });
+
+    // Moving dot on DE (inside clip)
+    linesGroup.append('circle')
+      .attr('class', 'de-dot')
+      .attr('r', 4)
+      .attr('fill', COLORS.DE)
+      .attr('opacity', 0);
+
+    // Event annotation groups (outside clip — always visible once shown)
+    // Each group has a vline sub-group and a card sub-group.
+    // Only the most-recently-passed event shows its card; older ones show vline only.
+    annotGroup = svg.append('g').attr('class', 'annotations');
+    EVENTS.forEach((ev, i) => {
+      const g = annotGroup.append('g')
+        .attr('class', `event-g event-${i}`)
+        .attr('opacity', 0);
+
+      const ex = xScale(ev.year);
+
+      // Vertical line (always shown when event is past)
+      g.append('line')
+        .attr('class', 'event-vline')
+        .attr('x1', ex).attr('x2', ex)
+        .attr('y1', margin.top).attr('y2', H - margin.bottom)
+        .attr('stroke', '#b33b2f').attr('stroke-width', 1.0)
+        .attr('stroke-dasharray', '4,3')
+        .attr('opacity', 0.7);
+
+      // Card group — shown only when this is the most recent event
+      const flipLeft = ev.year > 2018;
+      const cardW = Math.max(138, Math.min(184, W * 0.26));
+      const innerW = cardW - 18;
+      const titleLines = wrapText(ev.title, innerW, 10, 700);
+      const summaryLines = wrapText(ev.summary, innerW, 7.5, 400, 3);
+      const titleLineHeight = 12;
+      const summaryLineHeight = 10;
+      const cardH = 38 + (titleLines.length * titleLineHeight) + (summaryLines.length * summaryLineHeight);
+      const preferredX = flipLeft ? ex - cardW - 10 : ex + 10;
+      const cardX = Math.max(margin.left + 8, Math.min(W - margin.right - cardW - 8, preferredX));
+      const cardY = margin.top + 10;
+
+      const card = g.append('g').attr('class', 'event-card');
+
+      card.append('rect')
+        .attr('x', cardX).attr('y', cardY)
+        .attr('width', cardW).attr('height', cardH)
+        .attr('rx', 3)
+        .attr('fill', '#ffffff').attr('fill-opacity', 0.97)
+        .attr('stroke', '#b33b2f').attr('stroke-width', 1.5);
+
+      card.append('text')
+        .attr('x', cardX + 9).attr('y', cardY + 18)
+        .attr('font-size', '10px').attr('font-weight', '700')
+        .attr('fill', '#141414')
+        .attr('font-family', 'system-ui, sans-serif')
+        .selectAll('tspan')
+        .data(titleLines)
+        .enter()
+        .append('tspan')
+        .attr('x', cardX + 9)
+        .attr('dy', (d, idx) => idx === 0 ? 0 : '1.2em')
+        .text(d => d);
+
+      card.append('text')
+        .attr('x', cardX + 9).attr('y', cardY + 22 + (titleLines.length * titleLineHeight))
+        .attr('font-size', '8px').attr('fill', '#b33b2f')
+        .attr('font-family', 'system-ui, sans-serif')
+        .text(ev.date);
+
+      const summaryText = card.append('text')
+        .attr('x', cardX + 9).attr('y', cardY + 36 + (titleLines.length * titleLineHeight))
+        .attr('font-size', '7.5px').attr('fill', '#676767')
+        .attr('font-family', 'system-ui, sans-serif');
+      summaryText.selectAll('tspan')
+        .data(summaryLines)
+        .enter()
+        .append('tspan')
+        .attr('x', cardX + 9)
+        .attr('dy', (d, idx) => idx === 0 ? 0 : '1.2em')
+        .text(d => d);
+    });
+
+    // Country label groups (outside clip, shown near right edge after 2015)
+    labelsGroup = svg.append('g').attr('class', 'country-labels');
+    COUNTRY_ORDER.forEach(c => {
+      labelsGroup.append('text')
+        .attr('class', `clabel-${c}`)
+        .attr('font-size', '9px')
+        .attr('font-weight', c === 'DE' ? '700' : '400')
+        .attr('fill', COLORS[c])
+        .attr('font-family', 'system-ui, sans-serif')
+        .attr('dy', '0.35em')
+        .attr('opacity', 0)
+        .text(LABELS[c]);
+    });
+  }
+
+  // ── Update chart to currentYear ──────────────────────────────────────────
+  function updateChart(currentYear) {
+    if (!clipRect) return;
+
+    // Clip reveal
+    const clipW = Math.max(0, xScale(currentYear) - margin.left);
+    clipRect.attr('width', clipW);
+
+    // Moving dot
+    const dePts = pointsMap['DE'];
+    const lastDE = dePts.filter(d => d.year <= currentYear).slice(-1)[0];
+    const dot = linesGroup.select('.de-dot');
+    if (lastDE && currentYear < YEAR_MAX - 0.4) {
+      dot
+        .attr('cx', xScale(lastDE.year))
+        .attr('cy', yScale(lastDE.value))
+        .attr('opacity', 1);
+    } else {
+      dot.attr('opacity', 0);
+    }
+
+    // Event annotations — all past events show vline; only the most recent shows card
+    const mostRecentIdx = EVENTS.reduce((acc, ev, i) => ev.year <= currentYear ? i : acc, -1);
+    EVENTS.forEach((ev, i) => {
+      const isPast = ev.year <= currentYear;
+      const isMostRecent = i === mostRecentIdx;
+      // Whole group opacity
+      annotGroup.select(`.event-${i}`).attr('opacity', isPast ? 1 : 0);
+      // Vline: always show at moderate opacity if past
+      annotGroup.select(`.event-${i} .event-vline`).attr('opacity', isPast ? (isMostRecent ? 0.9 : 0.3) : 0);
+      // Card: only for the most recent event
+      annotGroup.select(`.event-${i} .event-card`).attr('opacity', isMostRecent ? 1 : 0);
+    });
+
+    // Country labels — show after 2015 near the last visible data point
+    if (currentYear > 2015) {
+      COUNTRY_ORDER.forEach(c => {
+        const pts = pointsMap[c];
+        const visible = pts.filter(d => d.year <= currentYear);
+        if (!visible.length) return;
+        const last = visible[visible.length - 1];
+        const lx = xScale(last.year) + 4;
+        const ly = yScale(last.value);
+        labelsGroup.select(`.clabel-${c}`)
+          .attr('x', lx)
+          .attr('y', ly)
+          .attr('opacity', (currentYear - 2015) / 2);  // fade in 2015-2017
+      });
+    }
+  }
+
+  // ── Scroll → year ─────────────────────────────────────────────────────────
+  function clamp01(v) {
+    return Math.max(0, Math.min(1, v));
+  }
+
+  function wrapText(text, maxWidth, fontSize, fontWeight, maxLines) {
+    const avgCharWidth = fontSize * (fontWeight >= 700 ? 0.6 : 0.55);
+    const maxChars = Math.max(10, Math.floor(maxWidth / avgCharWidth));
+    const words = String(text).split(/\s+/).filter(Boolean);
+    const lines = [];
+    let current = '';
+
+    words.forEach(word => {
+      const candidate = current ? `${current} ${word}` : word;
+      if (candidate.length <= maxChars || !current) {
+        current = candidate;
+      } else {
+        lines.push(current);
+        current = word;
+      }
+    });
+
+    if (current) lines.push(current);
+    if (!maxLines || lines.length <= maxLines) return lines;
+
+    const trimmed = lines.slice(0, maxLines);
+    trimmed[maxLines - 1] = `${trimmed[maxLines - 1].replace(/[.,;:!?-]*$/, '')}…`;
+    return trimmed;
+  }
+
+  function getScrollAnchorY() {
+    return window.innerWidth >= 1100 ? window.innerHeight * 0.4 : window.innerHeight * 0.55;
+  }
+
+  function getScrollYear() {
+    const sections = Array.from(document.querySelectorAll('.narrative-section[data-year-start][data-year-end]'));
+    if (!sections.length) return YEAR_MIN;
+
+    const anchorY = getScrollAnchorY();
+    const firstRect = sections[0].getBoundingClientRect();
+    if (anchorY < firstRect.top) return YEAR_MIN;
+
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i];
+      const rect = section.getBoundingClientRect();
+      const yStart = Number(section.dataset.yearStart);
+      const yEnd = Number(section.dataset.yearEnd);
+      if (!Number.isFinite(yStart) || !Number.isFinite(yEnd)) continue;
+
+      if (anchorY >= rect.top && anchorY <= rect.bottom) {
+        const span = Math.max(1, rect.height);
+        const localProgress = clamp01((anchorY - rect.top) / span);
+        const year = yStart + localProgress * (yEnd - yStart);
+        return Math.max(YEAR_MIN, Math.min(YEAR_MAX, year));
+      }
+
+      const next = sections[i + 1];
+      if (next) {
+        const nextTop = next.getBoundingClientRect().top;
+        if (anchorY > rect.bottom && anchorY < nextTop) {
+          return Math.max(YEAR_MIN, Math.min(YEAR_MAX, yEnd));
+        }
+      }
+    }
+
+    return YEAR_MAX;
+  }
+
+  // ── Intersection observer for narrative sections ──────────────────────────
+  function setupObserver() {
+    const sections = document.querySelectorAll('.narrative-section');
+    const desktop = window.innerWidth >= 1100;
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        e.target.classList.toggle('active', e.isIntersecting);
+      });
+    }, {
+      threshold: desktop ? 0.35 : 0.25,
+      rootMargin: desktop ? '-22% 0px -28% 0px' : '-15% 0px -15% 0px',
+    });
+    sections.forEach(s => obs.observe(s));
+  }
+
+  // ── Resize handler ────────────────────────────────────────────────────────
+  let resizeTimer;
+  function onResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      setup();
+      updateChart(getScrollYear());
+    }, 120);
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  function init() {
+    try {
+      setup();
+      updateChart(YEAR_MIN);
+      setupObserver();
+
+      window.addEventListener('scroll', () => {
+        updateChart(getScrollYear());
+      }, { passive: true });
+
+      window.addEventListener('resize', onResize);
+    } catch(e) {
+      console.error('Chart init error:', e);
+    }
+  }
+
+  // Expose init so the outer load handler can call it
+  window.__chartInit = init;
+})();
+
+// Init after full page load — small delay ensures sticky layout is resolved
+function _doChartInit() { setTimeout(window.__chartInit, 50); }
+if (document.readyState === 'complete') {
+  _doChartInit();
+} else {
+  window.addEventListener('load', _doChartInit);
+}
+</script>
+
+</body>
+</html>
